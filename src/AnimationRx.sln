@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionConfig", "SolutionConfig", "{461806CF-FC9B-4234-B479-DDE5F980741E}"
+	ProjectSection(SolutionItems) = preProject
+		..\.editorconfig = ..\.editorconfig
+		..\.gitignore = ..\.gitignore
+		..\Directory.Build.props = ..\Directory.Build.props
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+		..\stylecop.json = ..\stylecop.json
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimationRx.Wpf", "AnimationRx.Wpf\AnimationRx.Wpf.csproj", "{BE990F86-8482-4AEE-9F1F-7B612077899E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{EA859C1F-9760-45C1-8F28-71D344F21417}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE990F86-8482-4AEE-9F1F-7B612077899E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE990F86-8482-4AEE-9F1F-7B612077899E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE990F86-8482-4AEE-9F1F-7B612077899E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE990F86-8482-4AEE-9F1F-7B612077899E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA859C1F-9760-45C1-8F28-71D344F21417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA859C1F-9760-45C1-8F28-71D344F21417}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E2A94F16-DA8A-4266-AE7A-46D04A8BBCC7}
+	EndGlobalSection
+EndGlobal
