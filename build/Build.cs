@@ -88,6 +88,11 @@ partial class Build : NukeBuild
         {
             var packableProjects = Solution.GetPackableProjects();
 
+            foreach (var project in packableProjects!)
+            {
+                Log.Information("Packing {Project}", project.Name);
+            }
+
             DotNetPack(settings => settings
                 .SetConfiguration(Configuration)
                 .SetVersion(NerdbankVersioning.NuGetPackageVersion)

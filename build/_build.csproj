@@ -6,6 +6,7 @@
     <RootNamespace></RootNamespace>
     <NoWarn>$(NoWarn);CS0649;CS0169;CA1822;IDE1006</NoWarn>
     <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
     <NukeRootDirectory>..</NukeRootDirectory>
     <NukeScriptDirectory>..</NukeScriptDirectory>
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
