@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimationRx.Wpf", "Animatio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{EA859C1F-9760-45C1-8F28-71D344F21417}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimationRx.Wpf.TestApp", "AnimationRx.Wpf.TestApp\AnimationRx.Wpf.TestApp.csproj", "{6AEE86E7-6284-42BD-99D8-5B0847EB671F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 		{BE990F86-8482-4AEE-9F1F-7B612077899E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EA859C1F-9760-45C1-8F28-71D344F21417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EA859C1F-9760-45C1-8F28-71D344F21417}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AEE86E7-6284-42BD-99D8-5B0847EB671F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AEE86E7-6284-42BD-99D8-5B0847EB671F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AEE86E7-6284-42BD-99D8-5B0847EB671F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AEE86E7-6284-42BD-99D8-5B0847EB671F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
