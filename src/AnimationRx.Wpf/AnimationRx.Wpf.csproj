@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;net472;net48;net6.0-windows10.0.17763.0;net7.0-windows10.0.17763.0;net8.0-windows10.0.17763.0;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0;net8.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks>net462;net472;net48;net8.0-windows10.0.17763.0;net9.0-windows10.0.17763.0;net8.0-windows10.0.19041.0;net9.0-windows10.0.19041.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <Title>AnimationRx.Wpf</Title>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ReactiveUI.Wpf" Version="19.5.72" />
+    <PackageReference Include="ReactiveUI.Wpf" Version="20.2.45" />
   </ItemGroup>
 
 </Project>
