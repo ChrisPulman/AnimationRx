@@ -9,7 +9,7 @@ namespace CP.AnimationRx;
 public record struct Duration : IEquatable<Duration>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="Duration"/> class.
+    /// Initializes a new instance of the <see cref="Duration"/> struct.
     /// </summary>
     /// <param name="percent">The percent.</param>
     public Duration(double percent) => Percent = percent;
