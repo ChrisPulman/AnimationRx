@@ -26,12 +26,6 @@ using CP.BuildTools;
 ////    InvokedTargets = new[] { nameof(Compile), nameof(Deploy) })]
 partial class Build : NukeBuild
 {
-    //// Support plugins are available for:
-    ////   - JetBrains ReSharper        https://nuke.build/resharper
-    ////   - JetBrains Rider            https://nuke.build/rider
-    ////   - Microsoft VisualStudio     https://nuke.build/visualstudio
-    ////   - Microsoft VSCode           https://nuke.build/vscode
-
     public static int Main() => Execute<Build>(x => x.Compile);
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -59,7 +53,7 @@ partial class Build : NukeBuild
             }
 
             PackagesDirectory.CreateOrCleanDirectory();
-            await this.UpdateVisualStudio();
+            ////await this.UpdateVisualStudio();
             await this.InstallDotNetSdk("8.x.x", "9.x.x");
         });
 
