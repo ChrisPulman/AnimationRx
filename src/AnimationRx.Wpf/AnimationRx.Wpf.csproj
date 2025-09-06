@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ReactiveUI.Wpf" Version="20.4.1" />
+    <PackageReference Include="ReactiveUI.Wpf" Version="21.0.1" />
   </ItemGroup>
 
 </Project>
