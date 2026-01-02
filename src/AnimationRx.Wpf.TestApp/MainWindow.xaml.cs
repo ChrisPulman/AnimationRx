@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -194,8 +195,8 @@ namespace CP.Animation.TestApp
             // Reset score/lives
             _score = 0;
             _lives = 3;
-            ScoreText.Text = $"Score: {_score}";
-            LivesText.Text = $"Lives: {_lives}";
+            ScoreText.Text = "Score: 0";
+            LivesText.Text = "Lives: 3";
 
             // Hide title
             HideTitleOverlay();
@@ -235,7 +236,7 @@ namespace CP.Animation.TestApp
 
             // Build a dt stream (seconds) with clamping and optional rate limiting to avoid too-fast updates
             var frameDt = frame
-                .Timestamp(RxApp.MainThreadScheduler)
+                .Timestamp(RxSchedulers.MainThreadScheduler)
                 .Scan(new { last = DateTimeOffset.Now, dt = 0.016 }, (acc, t) =>
                 {
                     var now = t.Timestamp;
@@ -256,7 +257,7 @@ namespace CP.Animation.TestApp
 
             // Move player horizontally (time-based)
             frame.WithLatestFrom(horiz, (_, h) => h)
-                .Timestamp(RxApp.MainThreadScheduler)
+                .Timestamp(RxSchedulers.MainThreadScheduler)
                 .Scan(new { last = DateTimeOffset.Now, x = 100.0 }, (acc, h) =>
                 {
                     var now = h.Timestamp;
@@ -275,7 +276,7 @@ namespace CP.Animation.TestApp
                     var clamped = Math.Max(0, Math.Min(nx, Math.Max(0, Playfield.ActualWidth - _player.Width)));
                     return new { last = now, x = clamped };
                 })
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Do(state => Canvas.SetLeft(_player, state.x))
                 .Subscribe(_ => { }, HandleError)
                 .DisposeWith(_game);
@@ -288,7 +289,7 @@ namespace CP.Animation.TestApp
             }
 
             frame.WithLatestFrom(vert, (_, v) => v)
-                .Timestamp(RxApp.MainThreadScheduler)
+                .Timestamp(RxSchedulers.MainThreadScheduler)
                 .Scan(new { last = DateTimeOffset.Now, y = initialTop }, (acc, v) =>
                 {
                     var now = v.Timestamp;
@@ -307,7 +308,7 @@ namespace CP.Animation.TestApp
                     var clampedY = Math.Max(0, Math.Min(ny, Math.Max(0, Playfield.ActualHeight - _player.Height)));
                     return new { last = now, y = clampedY };
                 })
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Do(state => Canvas.SetTop(_player, state.y))
                 .Subscribe(_ => { }, HandleError)
                 .DisposeWith(_game);
@@ -321,19 +322,19 @@ namespace CP.Animation.TestApp
 
             // Bullets
             frameDt
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Subscribe(dt => UpdateBullets(dt), HandleError)
                 .DisposeWith(_game);
 
             // Enemies
             frameDt
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Subscribe(dt => UpdateEnemies(dt), HandleError)
                 .DisposeWith(_game);
 
             // Collisions
             frame
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Subscribe(_ => CheckCollisions(), HandleError)
                 .DisposeWith(_game);
 
