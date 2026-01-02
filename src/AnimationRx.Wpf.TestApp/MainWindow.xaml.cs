@@ -315,7 +315,7 @@ namespace CP.Animation.TestApp
 
             // Enemy spawn
             Observable.Interval(TimeSpan.FromMilliseconds(900))
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Do(_ => SpawnEnemy())
                 .Subscribe(_ => { }, HandleError)
                 .DisposeWith(_game);
