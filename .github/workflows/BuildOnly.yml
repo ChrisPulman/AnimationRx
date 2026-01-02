@@ -30,6 +30,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      # -----------------------------
+      # Install .NET SDKs (8, 9, 10)
+      # -----------------------------
+      - name: Setup .NET (With cache)
+        uses: actions/setup-dotnet@v5.0.1
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+          dotnet-quality: 'preview'
+          cache: true
+          cache-dependency-path: |
+            **/Directory.Packages.props
+            **/*.sln
+            **/*.csproj
+            **/global.json
+            **/nuget.config
+
       - name: 'Cache: .nuke/temp, ~/.nuget/packages'
         uses: actions/cache@v5
         with:

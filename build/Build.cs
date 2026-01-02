@@ -53,18 +53,12 @@ partial class Build : NukeBuild
             }
 
             PackagesDirectory.CreateOrCleanDirectory();
-            ////await this.UpdateVisualStudio();
-            await this.InstallDotNetSdk("8.x.x", "9.x.x");
+            DotNetWorkloadUpdate();
         });
 
     Target Restore => _ => _
         .DependsOn(Clean)
-        .Executes(() =>
-        {
-            DotNetRestore(s => s.SetProjectFile(Solution));
-
-            Solution.RestoreSolutionWorkloads();
-        });
+        .Executes(() => DotNetRestore(s => s.SetProjectFile(Solution)));
 
     Target Compile => _ => _
         .DependsOn(Restore, Print)

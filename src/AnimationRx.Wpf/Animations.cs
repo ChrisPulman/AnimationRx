@@ -30,7 +30,7 @@ public static class Animations
         {
             var fps = framesPerSecond <= 0 ? 60.0 : framesPerSecond;
             var period = TimeSpan.FromMilliseconds(1000.0 / fps);
-            return Observable.Interval(period, scheduler ?? RxApp.TaskpoolScheduler);
+            return Observable.Interval(period, scheduler ?? RxSchedulers.TaskpoolScheduler);
         });
 
     /// <summary>
@@ -44,7 +44,7 @@ public static class Animations
             void Handler(object? s, EventArgs e) => observer.OnNext(i++);
             CompositionTarget.Rendering += Handler;
             return Disposable.Create(() => CompositionTarget.Rendering -= Handler);
-        }).ObserveOn(RxApp.MainThreadScheduler);
+        }).ObserveOn(RxSchedulers.MainThreadScheduler);
 
     /// <summary>
     /// Convenience overload to drive frames by a fixed period.
@@ -53,7 +53,7 @@ public static class Animations
     /// <param name="scheduler">Optional scheduler to schedule the frames.</param>
     /// <returns>An observable sequence of frame indices emitted on the given period.</returns>
     public static IObservable<long> AnimateFrame(TimeSpan period, IScheduler? scheduler = null) =>
-        Observable.Interval(period, scheduler ?? RxApp.TaskpoolScheduler);
+        Observable.Interval(period, scheduler ?? RxSchedulers.TaskpoolScheduler);
 
     /// <summary>
     /// Bottoms the margin move.
@@ -67,7 +67,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(position, (ms, p) => new { ms, p })
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await BottomMarginMove(element, v.ms, v.p, ease))));
 
     /// <summary>
@@ -82,7 +82,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(position, ease, (ms, p, e) => new { ms, p, e })
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await BottomMarginMove(element, v.ms, v.p, v.e))));
 
     /// <summary>
@@ -95,12 +95,12 @@ public static class Animations
     /// <param name="scheduler">The scheduler.</param>
     /// <returns>An Observabel Unit.</returns>
     public static IObservable<Unit> BottomMarginMove(this FrameworkElement element, double milliSeconds, double position, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => element.Margin.Bottom, RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => element.Margin.Bottom, RxSchedulers.MainThreadScheduler)
                     .SelectMany(initialValue =>
                         DurationPercentage(milliSeconds, scheduler)
                             .EaseAnimation(ease)
                             .Distance(position - initialValue)
-                            .ObserveOn(RxApp.MainThreadScheduler)
+                            .ObserveOn(RxSchedulers.MainThreadScheduler)
                             .Do(t =>
                             {
                                 var mar = element.Margin;
@@ -132,11 +132,11 @@ public static class Animations
     /// Always emits a final 1.0 tick and then completes.
     /// </summary>
     /// <param name="milliSeconds">The animation duration in milliseconds, provided as an observable (to allow dynamic duration).</param>
-    /// <param name="scheduler">The scheduler to drive the time source; defaults to RxApp.TaskpoolScheduler.</param>
+    /// <param name="scheduler">The scheduler to drive the time source; defaults to RxSchedulers.TaskpoolScheduler.</param>
     /// <returns>An observable of Duration representing the percentage (0..1) over time.</returns>
     public static IObservable<Duration> DurationPercentage(IObservable<double> milliSeconds, IScheduler? scheduler = null) =>
         Observable.Defer(() =>
-            MilliSecondsElapsed(scheduler ?? RxApp.TaskpoolScheduler)
+            MilliSecondsElapsed(scheduler ?? RxSchedulers.TaskpoolScheduler)
                 .CombineLatest(milliSeconds, (ems, ms) => ms <= 0 ? 1.0 : ems / ms)
                 .ToDuration()
                 .TakeWhile(t => t.Percent < 1)
@@ -147,11 +147,11 @@ public static class Animations
     /// Always emits a final 1.0 tick and then completes.
     /// </summary>
     /// <param name="milliSeconds">The animation duration in milliseconds.</param>
-    /// <param name="scheduler">The scheduler to drive the time source; defaults to RxApp.TaskpoolScheduler.</param>
+    /// <param name="scheduler">The scheduler to drive the time source; defaults to RxSchedulers.TaskpoolScheduler.</param>
     /// <returns>An observable of Duration representing the percentage (0..1) over time.</returns>
     public static IObservable<Duration> DurationPercentage(double milliSeconds, IScheduler? scheduler = null) =>
         Observable.Defer(() =>
-            MilliSecondsElapsed(scheduler ?? RxApp.TaskpoolScheduler)
+            MilliSecondsElapsed(scheduler ?? RxSchedulers.TaskpoolScheduler)
                 .Select(ems => milliSeconds <= 0 ? 1.0 : ems / milliSeconds)
                 .ToDuration()
                 .TakeWhile(t => t.Percent < 1)
@@ -170,7 +170,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(position, (ms, p) => new { ms, p })
-            .ObserveOn(scheduler ?? RxApp.MainThreadScheduler)
+            .ObserveOn(scheduler ?? RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await LeftMarginMoveCore(element, v.ms, v.p, ease, scheduler))));
 
     /// <summary>
@@ -186,7 +186,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(position, ease, (ms, p, e) => new { ms, p, e })
-            .ObserveOn(scheduler ?? RxApp.MainThreadScheduler)
+            .ObserveOn(scheduler ?? RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await LeftMarginMoveCore(element, v.ms, v.p, v.e, scheduler))));
 
     /// <summary>
@@ -235,7 +235,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(position, (ms, p) => new { ms, p })
-            .ObserveOn(scheduler ?? RxApp.MainThreadScheduler)
+            .ObserveOn(scheduler ?? RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await RightMarginMove(element, v.ms, v.p, ease))));
 
     /// <summary>
@@ -251,7 +251,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(position, ease, (ms, p, e) => new { ms, p, e })
-            .ObserveOn(scheduler ?? RxApp.MainThreadScheduler)
+            .ObserveOn(scheduler ?? RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await RightMarginMove(element, v.ms, v.p, v.e))));
 
     /// <summary>
@@ -264,12 +264,12 @@ public static class Animations
     /// <param name="scheduler">The scheduler.</param>
     /// <returns>A Value.</returns>
     public static IObservable<Unit> RightMarginMove(this FrameworkElement element, double milliSeconds, double position, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => element.Margin.Right, RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => element.Margin.Right, RxSchedulers.MainThreadScheduler)
                     .SelectMany(initialValue =>
                         DurationPercentage(milliSeconds, scheduler)
                             .EaseAnimation(ease)
                             .Distance(position - initialValue)
-                            .ObserveOn(RxApp.MainThreadScheduler)
+                            .ObserveOn(RxSchedulers.MainThreadScheduler)
                             .Do(t =>
                             {
                                 var mar = element.Margin;
@@ -290,7 +290,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(angle, (ms, p) => new { ms, p })
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await RotateTransform(element, v.ms, v.p, ease))));
 
     /// <summary>
@@ -305,7 +305,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(angle, ease, (ms, p, e) => new { ms, p, e })
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await RotateTransform(element, v.ms, v.p, v.e))));
 
     /// <summary>
@@ -328,11 +328,11 @@ public static class Animations
                  return DurationPercentage(milliSeconds, scheduler)
                      .EaseAnimation(ease)
                      .Distance(angle - initialValue)
-                     .ObserveOn(RxApp.MainThreadScheduler)
+                     .ObserveOn(RxSchedulers.MainThreadScheduler)
                      .Do(t => trRot.Angle = initialValue + t)
                      .Select(_ => Unit.Default);
              },
-                 RxApp.MainThreadScheduler).SelectMany(x => x));
+                 RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
     /// <summary>
     /// Takes one value of T every interval.
@@ -348,7 +348,7 @@ public static class Animations
     /// </returns>
     public static IObservable<T> TakeOneEvery<T>(this IObservable<T> @this, TimeSpan interval, IScheduler? scheduler = null) =>
         Observable.Create<T>(obs =>
-            @this.ObserveOn(scheduler ?? RxApp.TaskpoolScheduler)
+            @this.ObserveOn(scheduler ?? RxSchedulers.TaskpoolScheduler)
                 .Subscribe(
                         async v =>
                         {
@@ -381,7 +381,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(position, (ms, p) => new { ms, p })
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await TopMarginMove(element, v.ms, v.p, ease))));
 
     /// <summary>
@@ -396,7 +396,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(position, ease, (ms, p, e) => new { ms, p, e })
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await TopMarginMove(element, v.ms, v.p, v.e))));
 
     /// <summary>
@@ -409,12 +409,12 @@ public static class Animations
     /// <param name="scheduler">The scheduler.</param>
     /// <returns>A Value.</returns>
     public static IObservable<Unit> TopMarginMove(this FrameworkElement element, double milliSeconds, double position, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => element.Margin.Top, RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => element.Margin.Top, RxSchedulers.MainThreadScheduler)
                     .SelectMany(initialValue =>
                         DurationPercentage(milliSeconds, scheduler)
                     .EaseAnimation(ease)
                     .Distance(position - initialValue)
-                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .ObserveOn(RxSchedulers.MainThreadScheduler)
                     .Do(t =>
                     {
                         var mar = element.Margin;
@@ -436,7 +436,7 @@ public static class Animations
         Observable.Create<Unit>(obs =>
             milliSeconds
             .CombineLatest(position, (ms, p) => new { ms, p })
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(async v => obs.OnNext(await TranslateTransform(element, v.ms, v.p.X, v.p.Y, xease, yease))));
 
     /// <summary>
@@ -466,7 +466,7 @@ public static class Animations
                         var yMove = anim.EaseAnimation(yease).Distance(yPosition - yinitialValue);
 
                         return xMove.CombineLatest(yMove, (x, y) => new Point(x, y))
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(t =>
                         {
                             trTns.X = xinitialValue + t.X;
@@ -474,7 +474,7 @@ public static class Animations
                         })
                         .Select(_ => Unit.Default);
                     },
-                    RxApp.MainThreadScheduler).SelectMany(x => x));
+                    RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
     /// <summary>
     /// Animates element opacity to a target value.
@@ -486,10 +486,10 @@ public static class Animations
     /// <param name="scheduler">Optional scheduler.</param>
     /// <returns>A Unit observable that completes when the animation ends.</returns>
     public static IObservable<Unit> OpacityTo(this UIElement element, double milliSeconds, double to, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => element.Opacity, RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => element.Opacity, RxSchedulers.MainThreadScheduler)
                 .SelectMany(from =>
                     AnimateValue(milliSeconds, from, to, ease, scheduler)
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(v => element.Opacity = v)
                         .Select(_ => Unit.Default)));
 
@@ -503,10 +503,10 @@ public static class Animations
     /// <param name="scheduler">Optional scheduler.</param>
     /// <returns>A Unit observable that completes when the animation ends.</returns>
     public static IObservable<Unit> WidthTo(this FrameworkElement element, double milliSeconds, double to, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => double.IsNaN(element.Width) ? element.ActualWidth : element.Width, RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => double.IsNaN(element.Width) ? element.ActualWidth : element.Width, RxSchedulers.MainThreadScheduler)
                 .SelectMany(from =>
                     AnimateValue(milliSeconds, from, to, ease, scheduler)
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(v => element.Width = v)
                         .Select(_ => Unit.Default)));
 
@@ -520,10 +520,10 @@ public static class Animations
     /// <param name="scheduler">Optional scheduler.</param>
     /// <returns>A Unit observable that completes when the animation ends.</returns>
     public static IObservable<Unit> HeightTo(this FrameworkElement element, double milliSeconds, double to, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => double.IsNaN(element.Height) ? element.ActualHeight : element.Height, RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => double.IsNaN(element.Height) ? element.ActualHeight : element.Height, RxSchedulers.MainThreadScheduler)
                 .SelectMany(from =>
                     AnimateValue(milliSeconds, from, to, ease, scheduler)
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(v => element.Height = v)
                         .Select(_ => Unit.Default)));
 
@@ -537,10 +537,10 @@ public static class Animations
     /// <param name="scheduler">Optional scheduler.</param>
     /// <returns>A Unit observable that completes when the animation ends.</returns>
     public static IObservable<Unit> MarginTo(this FrameworkElement element, double milliSeconds, Thickness to, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => element.Margin, RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => element.Margin, RxSchedulers.MainThreadScheduler)
                 .SelectMany(from =>
                     AnimateValue(milliSeconds, 0, 1, ease, scheduler)
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(p => element.Margin = Lerp(from, to, p))
                         .Select(_ => Unit.Default)));
 
@@ -554,10 +554,10 @@ public static class Animations
     /// <param name="scheduler">Optional scheduler.</param>
     /// <returns>A Unit observable that completes when the animation ends.</returns>
     public static IObservable<Unit> PaddingTo(this Control element, double milliSeconds, Thickness to, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => element.Padding, RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => element.Padding, RxSchedulers.MainThreadScheduler)
                 .SelectMany(from =>
                     AnimateValue(milliSeconds, 0, 1, ease, scheduler)
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(p => element.Padding = Lerp(from, to, p))
                         .Select(_ => Unit.Default)));
 
@@ -571,10 +571,10 @@ public static class Animations
     /// <param name="scheduler">Optional scheduler.</param>
     /// <returns>A Unit observable that completes when the animation ends.</returns>
     public static IObservable<Unit> CanvasLeftTo(this FrameworkElement element, double milliSeconds, double to, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => double.IsNaN(Canvas.GetLeft(element)) ? 0 : Canvas.GetLeft(element), RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => double.IsNaN(Canvas.GetLeft(element)) ? 0 : Canvas.GetLeft(element), RxSchedulers.MainThreadScheduler)
                 .SelectMany(from =>
                     AnimateValue(milliSeconds, from, to, ease, scheduler)
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(v => Canvas.SetLeft(element, v))
                         .Select(_ => Unit.Default)));
 
@@ -588,10 +588,10 @@ public static class Animations
     /// <param name="scheduler">Optional scheduler.</param>
     /// <returns>A Unit observable that completes when the animation ends.</returns>
     public static IObservable<Unit> CanvasTopTo(this FrameworkElement element, double milliSeconds, double to, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => double.IsNaN(Canvas.GetTop(element)) ? 0 : Canvas.GetTop(element), RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => double.IsNaN(Canvas.GetTop(element)) ? 0 : Canvas.GetTop(element), RxSchedulers.MainThreadScheduler)
                 .SelectMany(from =>
                     AnimateValue(milliSeconds, from, to, ease, scheduler)
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(v => Canvas.SetTop(element, v))
                         .Select(_ => Unit.Default)));
 
@@ -605,10 +605,10 @@ public static class Animations
     /// <param name="scheduler">Optional scheduler.</param>
     /// <returns>A Unit observable that completes when the animation ends.</returns>
     public static IObservable<Unit> BrushColorTo(this SolidColorBrush brush, double milliSeconds, Color to, Ease ease = Ease.None, IScheduler? scheduler = null) =>
-        Observable.Defer(() => Observable.Start(() => brush.Color, RxApp.MainThreadScheduler)
+        Observable.Defer(() => Observable.Start(() => brush.Color, RxSchedulers.MainThreadScheduler)
                 .SelectMany(from =>
                     AnimateValue(milliSeconds, 0, 1, ease, scheduler)
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(p => brush.Color = Lerp(from, to, p))
                         .Select(_ => Unit.Default)));
 
@@ -636,7 +636,7 @@ public static class Animations
                     var yMove = anim.EaseAnimation(easeY).Distance(scaleY - sy);
 
                     return xMove.CombineLatest(yMove, (x, y) => new Point(x, y))
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(p =>
                         {
                             tr.ScaleX = sx + p.X;
@@ -644,7 +644,7 @@ public static class Animations
                         })
                         .Select(_ => Unit.Default);
                 },
-                RxApp.MainThreadScheduler).SelectMany(x => x));
+                RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
     /// <summary>
     /// Skew transform animation.
@@ -670,7 +670,7 @@ public static class Animations
                     var yMove = anim.EaseAnimation(easeY).Distance(angleY - ay);
 
                     return xMove.CombineLatest(yMove, (x, y) => new Point(x, y))
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(p =>
                         {
                             tr.AngleX = ax + p.X;
@@ -678,7 +678,7 @@ public static class Animations
                         })
                         .Select(_ => Unit.Default);
                 },
-                RxApp.MainThreadScheduler).SelectMany(x => x));
+                RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
     /// <summary>
     /// Sequences animations in order (Concat) and completes when the last completes.
@@ -740,7 +740,7 @@ public static class Animations
             throw new ArgumentNullException(nameof(animations));
         }
 
-        var sched = scheduler ?? RxApp.TaskpoolScheduler;
+        var sched = scheduler ?? RxSchedulers.TaskpoolScheduler;
         return animations.SelectMany(a => new[] { Observable.Timer(delay, sched).Select(_ => Unit.Default), a }.AsEnumerable())
                          .Sequence();
     }
@@ -759,7 +759,7 @@ public static class Animations
             throw new ArgumentNullException(nameof(animations));
         }
 
-        var sched = scheduler ?? RxApp.TaskpoolScheduler;
+        var sched = scheduler ?? RxSchedulers.TaskpoolScheduler;
         var delay = TimeSpan.Zero;
         foreach (var anim in animations)
         {
@@ -786,12 +786,12 @@ public static class Animations
                 .Select(delta => from + delta));
 
     private static IObservable<Unit> LeftMarginMoveCore(FrameworkElement element, double milliSeconds, double position, Ease ease, IScheduler? scheduler)
-        => Observable.Defer(() => Observable.Start(() => element.Margin.Left, RxApp.MainThreadScheduler)
+        => Observable.Defer(() => Observable.Start(() => element.Margin.Left, RxSchedulers.MainThreadScheduler)
                 .SelectMany(initialValue =>
                     DurationPercentage(milliSeconds, scheduler)
                         .EaseAnimation(ease)
                         .Distance(position - initialValue)
-                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .ObserveOn(RxSchedulers.MainThreadScheduler)
                         .Do(t =>
                         {
                             var mar = element.Margin;
