@@ -1,0 +1,94 @@
+<Window
+    x:Class="AnimationRx.Avalonia.TestApp.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="AnimationRx.Avalonia.TestApp"
+    Width="900"
+    Height="520"
+    d:DesignHeight="520"
+    d:DesignWidth="900"
+    mc:Ignorable="d">
+
+    <Grid Background="#101418">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!--  HUD  -->
+        <DockPanel Grid.Row="0" Margin="10,10,10,6">
+            <TextBlock
+                x:Name="ScoreText"
+                DockPanel.Dock="Left"
+                FontSize="16"
+                Foreground="White"
+                Text="Score: 0" />
+            <TextBlock
+                x:Name="LivesText"
+                DockPanel.Dock="Right"
+                FontSize="16"
+                Foreground="White"
+                Text="Lives: 3" />
+        </DockPanel>
+
+        <!--  Playfield  -->
+        <Border
+            Grid.Row="1"
+            Margin="10"
+            Background="#0E1216"
+            BorderBrush="#2A3138"
+            BorderThickness="1"
+            CornerRadius="8">
+            <Grid>
+                <Canvas
+                    x:Name="Playfield"
+                    Background="Transparent"
+                    Focusable="True" />
+
+                <!--  Overlay  -->
+                <Border
+                    x:Name="TitleOverlay"
+                    Background="#99000000"
+                    IsVisible="False"
+                    Opacity="0">
+                    <StackPanel
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="10">
+                        <TextBlock
+                            x:Name="GameTitle"
+                            HorizontalAlignment="Center"
+                            FontSize="48"
+                            FontWeight="Bold"
+                            Foreground="DeepSkyBlue"
+                            Opacity="0"
+                            Text="REACTIVE SHOOTER" />
+                        <TextBlock
+                            x:Name="CreditsText"
+                            HorizontalAlignment="Center"
+                            FontSize="16"
+                            Foreground="#D0D6DC"
+                            Opacity="0"
+                            Text="by Chris Pulman" />
+                        <TextBlock
+                            x:Name="PressStartText"
+                            HorizontalAlignment="Center"
+                            FontSize="18"
+                            Foreground="#D0D6DC"
+                            Opacity="0"
+                            Text="Press Enter to Start" />
+                        <TextBlock
+                            x:Name="HintText"
+                            HorizontalAlignment="Center"
+                            FontSize="14"
+                            Foreground="#AAB4BE"
+                            Opacity="0"
+                            Text="Space = Fire, Arrows = Move" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
