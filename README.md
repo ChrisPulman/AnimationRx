@@ -159,7 +159,7 @@ var renderLoop = Animations.RenderFrames()
 Emits elapsed milliseconds since subscription (starting with `0.0`).
 
 ```csharp
-var ms = Animations.MilliSecondsElapsed(RxApp.TaskpoolScheduler)
+var ms = Animations.MilliSecondsElapsed(RxSchedulers.TaskpoolScheduler)
     .Subscribe(t => Debug.WriteLine($"elapsed {t:0}ms"));
 ```
 
@@ -249,7 +249,7 @@ Creates a numeric interpolation stream from `from` to `to`.
 
 ```csharp
 Animations.AnimateValue(600, from: 0, to: 100, Ease.SineInOut)
-    .ObserveOn(RxApp.MainThreadScheduler)
+    .ObserveOn(RxSchedulers.MainThreadScheduler)
     .Subscribe(v => viewModel.Progress = v);
 ```
 
@@ -276,7 +276,7 @@ Animations.DurationPercentage(300)
 Converts milliseconds to pixels at a constant velocity (px/s): `velocity * ms / 1000`.
 
 ```csharp
-Animations.MilliSecondsElapsed(RxApp.TaskpoolScheduler)
+Animations.MilliSecondsElapsed(RxSchedulers.TaskpoolScheduler)
     .PixelsPerSecond(velocity: 200)
     .Subscribe(px => Debug.WriteLine($"{px:0.0}px"));
 ```
@@ -563,7 +563,7 @@ Animations.AnimateFrame(TimeSpan.FromMilliseconds(16))
 Elapsed milliseconds since subscription.
 
 ```csharp
-Animations.MilliSecondsElapsed(RxApp.TaskpoolScheduler)
+Animations.MilliSecondsElapsed(RxSchedulers.TaskpoolScheduler)
     .Subscribe(ms => Debug.WriteLine(ms));
 ```
 
