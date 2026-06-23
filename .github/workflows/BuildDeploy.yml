@@ -38,6 +38,25 @@ jobs:
           setAllVars: true
       - run: echo 'SemVer2=${{ steps.nbgv.outputs.SemVer2 }}'
 
+      # -----------------------------
+      # Install .NET SDKs (8, 9, 10)
+      # -----------------------------
+      - name: Setup .NET (With cache)
+        uses: actions/setup-dotnet@v5.3.0
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+          dotnet-quality: 'preview'
+          cache: true
+          cache-dependency-path: |
+            **/Directory.Packages.props
+            **/*.sln
+            **/*.csproj
+            **/global.json
+            **/nuget.config
+
       - name: 'Cache: .nuke/temp, ~/.nuget/packages'
         uses: actions/cache@v6
         with:
@@ -45,8 +64,8 @@ jobs:
             .nuke/temp
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
-      - name: 'Run: Compile, Deploy'
-        run: ./build.cmd Compile Deploy
+      - name: 'Run: Test, Deploy'
+        run: ./build.cmd Test Deploy
         env:
           NuGetApiKey: ${{ secrets.NUGET_API_KEY }}
       - name: 'Publish: output'

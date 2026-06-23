@@ -1,7 +1,6 @@
-﻿/*
-Copyright (c) Chris Pulman. All rights reserved.
-Licensed under the MIT license. See LICENSE file in the project root for full license information.
-*/
+﻿// Copyright (c) 2023-2026 Chris Pulman and Contributors. All rights reserved.
+// Chris Pulman and Contributors licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for full license information.
 
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -14,15 +13,10 @@ using ReactiveUI;
 
 namespace CP.AnimationRx;
 
-/// <summary>
-/// Animations.
-/// </summary>
+/// <summary>Provides a set of extension methods and utilities for animating WPF UI elements using Reactive Extensions (Rx).</summary>
 public static class Animations
 {
-#pragma warning disable SA1611, SA1615, SA1618
-    /// <summary>
-    /// Animates the frame using an interval based on frames-per-second.
-    /// </summary>
+    /// <summary>Animates the frame using an interval based on frames-per-second.</summary>
     /// <param name="framesPerSecond">The frames per second.</param>
     /// <param name="scheduler">Optional scheduler.</param>
     /// <returns>An observable that ticks every frame.</returns>
@@ -34,9 +28,7 @@ public static class Animations
             return Observable.Interval(period, scheduler ?? RxSchedulers.TaskpoolScheduler);
         });
 
-    /// <summary>
-    /// Animates a frame stream synchronized with WPF CompositionTarget.Rendering (UI refresh rate, usually monitor Hz).
-    /// </summary>
+    /// <summary>Animates a frame stream synchronized with WPF CompositionTarget.Rendering (UI refresh rate, usually monitor Hz).</summary>
     /// <returns>An observable that produces a tick per WPF render frame on the main thread.</returns>
     public static IObservable<long> RenderFrames() =>
         Observable.Create<long>(observer =>
@@ -47,18 +39,14 @@ public static class Animations
             return Disposable.Create(() => CompositionTarget.Rendering -= Handler);
         }).ObserveOn(RxSchedulers.MainThreadScheduler);
 
-    /// <summary>
-    /// Convenience overload to drive frames by a fixed period.
-    /// </summary>
+    /// <summary>Convenience overload to drive frames by a fixed period.</summary>
     /// <param name="period">The frame period.</param>
     /// <param name="scheduler">Optional scheduler to schedule the frames.</param>
     /// <returns>An observable sequence of frame indices emitted on the given period.</returns>
     public static IObservable<long> AnimateFrame(TimeSpan period, IScheduler? scheduler = null) =>
         Observable.Interval(period, scheduler ?? RxSchedulers.TaskpoolScheduler);
 
-    /// <summary>
-    /// Bottoms the margin move.
-    /// </summary>
+    /// <summary>Bottoms the margin move.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milli seconds.</param>
     /// <param name="position">The position.</param>
@@ -71,9 +59,7 @@ public static class Animations
                 .Select(v => BottomMarginMove(element, v.ms, v.p, ease))
                 .Switch());
 
-    /// <summary>
-    /// Bottoms the margin move.
-    /// </summary>
+    /// <summary>Bottoms the margin move.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milli seconds.</param>
     /// <param name="position">The position.</param>
@@ -86,9 +72,7 @@ public static class Animations
                 .Select(v => BottomMarginMove(element, v.ms, v.p, v.e))
                 .Switch());
 
-    /// <summary>
-    /// Bottoms the margin move.
-    /// </summary>
+    /// <summary>Bottoms the margin move.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milli seconds.</param>
     /// <param name="position">The position.</param>
@@ -110,18 +94,14 @@ public static class Animations
                             })
                             .Select(_ => Unit.Default)));
 
-    /// <summary>
-    /// Distances the specified distance.
-    /// </summary>
+    /// <summary>Distances the specified distance.</summary>
     /// <param name="this">The this.</param>
     /// <param name="distance">The distance.</param>
     /// <returns>A Value.</returns>
     public static IObservable<double> Distance(this IObservable<Duration> @this, double distance) =>
         Observable.Create((IObserver<double> obs) => @this.Select(t => t.Percent * distance).Subscribe(obs));
 
-    /// <summary>
-    /// Distances the specified distance.
-    /// </summary>
+    /// <summary>Distances the specified distance.</summary>
     /// <param name="this">The this.</param>
     /// <param name="distance">The distance.</param>
     /// <returns>A Value.</returns>
@@ -158,9 +138,7 @@ public static class Animations
                 .TakeWhile(t => t.Percent < 1)
                 .Concat(Observable.Return(Duration.Create(1))));
 
-    /// <summary>
-    /// Lefts the margin move.
-    /// </summary>
+    /// <summary>Lefts the margin move.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milliseconds.</param>
     /// <param name="position">The position.</param>
@@ -174,9 +152,7 @@ public static class Animations
                 .Select(v => LeftMarginMoveCore(element, v.ms, v.p, ease, scheduler))
                 .Switch());
 
-    /// <summary>
-    /// Lefts the margin move.
-    /// </summary>
+    /// <summary>Lefts the margin move.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milli seconds.</param>
     /// <param name="position">The position.</param>
@@ -190,9 +166,7 @@ public static class Animations
                 .Select(v => LeftMarginMoveCore(element, v.ms, v.p, v.e, scheduler))
                 .Switch());
 
-    /// <summary>
-    /// Lefts the margin move.
-    /// </summary>
+    /// <summary>Lefts the margin move.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milliseconds.</param>
     /// <param name="position">The position.</param>
@@ -202,9 +176,7 @@ public static class Animations
     public static IObservable<Unit> LeftMarginMove(this FrameworkElement element, double milliSeconds, double position, Ease ease = Ease.None, IScheduler? scheduler = null) =>
         LeftMarginMoveCore(element, milliSeconds, position, ease, scheduler);
 
-    /// <summary>
-    /// Milliseconds elapsed.
-    /// </summary>
+    /// <summary>Milliseconds elapsed.</summary>
     /// <param name="scheduler">The scheduler.</param>
     /// <returns>A Value.</returns>
     public static IObservable<double> MilliSecondsElapsed(IScheduler scheduler) =>
@@ -216,18 +188,14 @@ public static class Animations
                 .StartWith(0.0);
         });
 
-    /// <summary>
-    /// Pixels per second.
-    /// </summary>
+    /// <summary>Pixels per second.</summary>
     /// <param name="this">The this.</param>
     /// <param name="velocity">The velocity.</param>
     /// <returns>A Value.</returns>
     public static IObservable<double> PixelsPerSecond(this IObservable<double> @this, double velocity) =>
         Observable.Create((IObserver<double> obs) => @this.Select(ms => velocity * ms / 1000).Subscribe(obs));
 
-    /// <summary>
-    /// Rights the margin move.
-    /// </summary>
+    /// <summary>Rights the margin move.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The Milli seconds.</param>
     /// <param name="position">The position.</param>
@@ -241,9 +209,7 @@ public static class Animations
                 .Select(v => RightMarginMoveCore(element, v.ms, v.p, ease, scheduler))
                 .Switch());
 
-    /// <summary>
-    /// Rights the margin move.
-    /// </summary>
+    /// <summary>Rights the margin move.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milli seconds.</param>
     /// <param name="position">The position.</param>
@@ -257,9 +223,7 @@ public static class Animations
                 .Select(v => RightMarginMoveCore(element, v.ms, v.p, v.e, scheduler))
                 .Switch());
 
-    /// <summary>
-    /// Rotates the transform.
-    /// </summary>
+    /// <summary>Rotates the transform.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The Milli seconds.</param>
     /// <param name="angle">The angle.</param>
@@ -272,9 +236,7 @@ public static class Animations
                 .Select(v => RotateTransform(element, v.ms, v.a, ease))
                 .Switch());
 
-    /// <summary>
-    /// Rotates the transform.
-    /// </summary>
+    /// <summary>Rotates the transform.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milli seconds.</param>
     /// <param name="angle">The angle.</param>
@@ -287,9 +249,7 @@ public static class Animations
                 .Select(v => RotateTransform(element, v.ms, v.a, v.e))
                 .Switch());
 
-    /// <summary>
-    /// Rotates the transform.
-    /// </summary>
+    /// <summary>Rotates the transform.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The Milli seconds.</param>
     /// <param name="angle">The angle.</param>
@@ -332,9 +292,7 @@ public static class Animations
             return @this.Select(v => Observable.Return(v).Delay(interval, sched)).Concat();
         });
 
-    /// <summary>
-    /// double To duration.
-    /// </summary>
+    /// <summary>Converts double values to durations.</summary>
     /// <param name="this">An IObservable double.</param>
     /// <returns>
     /// An IObservable Duration.
@@ -342,9 +300,7 @@ public static class Animations
     public static IObservable<Duration> ToDuration(this IObservable<double> @this) =>
         Observable.Defer(() => @this.Select(Duration.Create));
 
-    /// <summary>
-    /// Tops the margin move.
-    /// </summary>
+    /// <summary>Tops the margin move.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milliseconds.</param>
     /// <param name="position">The position.</param>
@@ -359,9 +315,7 @@ public static class Animations
                 .Select(v => TopMarginMoveCore(element, v.ms, v.p, ease))
                 .Switch());
 
-    /// <summary>
-    /// Tops the margin move.
-    /// </summary>
+    /// <summary>Tops the margin move.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milli seconds.</param>
     /// <param name="position">The position.</param>
@@ -374,9 +328,7 @@ public static class Animations
                 .Select(v => TopMarginMoveCore(element, v.ms, v.p, v.e))
                 .Switch());
 
-    /// <summary>
-    /// Execute Translate Transform.
-    /// </summary>
+    /// <summary>Execute Translate Transform.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milliseconds.</param>
     /// <param name="position">The position.</param>
@@ -390,9 +342,7 @@ public static class Animations
                 .Select(v => TranslateTransform(element, v.ms, v.p.X, v.p.Y, xease, yease))
                 .Switch());
 
-    /// <summary>
-    /// Execute Translate Transform.
-    /// </summary>
+    /// <summary>Execute Translate Transform.</summary>
     /// <param name="element">The element.</param>
     /// <param name="milliSeconds">The milliseconds.</param>
     /// <param name="xPosition">The x position.</param>
@@ -427,9 +377,7 @@ public static class Animations
                     },
                     RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
-    /// <summary>
-    /// Animates element opacity to a target value.
-    /// </summary>
+    /// <summary>Animates element opacity to a target value.</summary>
     /// <param name="element">The element to animate.</param>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="to">The target opacity (0..1).</param>
@@ -444,9 +392,7 @@ public static class Animations
                         .Do(v => element.Opacity = v)
                         .Select(_ => Unit.Default)));
 
-    /// <summary>
-    /// Animates FrameworkElement width to a target value.
-    /// </summary>
+    /// <summary>Animates FrameworkElement width to a target value.</summary>
     /// <param name="element">The element to animate.</param>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="to">The target width.</param>
@@ -461,9 +407,7 @@ public static class Animations
                         .Do(v => element.Width = v)
                         .Select(_ => Unit.Default)));
 
-    /// <summary>
-    /// Animates FrameworkElement height to a target value.
-    /// </summary>
+    /// <summary>Animates FrameworkElement height to a target value.</summary>
     /// <param name="element">The element to animate.</param>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="to">The target height.</param>
@@ -478,9 +422,7 @@ public static class Animations
                         .Do(v => element.Height = v)
                         .Select(_ => Unit.Default)));
 
-    /// <summary>
-    /// Animates Margin to a target thickness.
-    /// </summary>
+    /// <summary>Animates Margin to a target thickness.</summary>
     /// <param name="element">The element to animate.</param>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="to">The target thickness.</param>
@@ -495,9 +437,7 @@ public static class Animations
                         .Do(p => element.Margin = Lerp(from, to, p))
                         .Select(_ => Unit.Default)));
 
-    /// <summary>
-    /// Animates Padding to a target thickness (for Controls).
-    /// </summary>
+    /// <summary>Animates Padding to a target thickness (for Controls).</summary>
     /// <param name="element">The control to animate.</param>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="to">The target padding.</param>
@@ -512,9 +452,7 @@ public static class Animations
                         .Do(p => element.Padding = Lerp(from, to, p))
                         .Select(_ => Unit.Default)));
 
-    /// <summary>
-    /// Animates Canvas.Left attached property.
-    /// </summary>
+    /// <summary>Animates Canvas.Left attached property.</summary>
     /// <param name="element">The element to animate.</param>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="to">The target left position.</param>
@@ -529,9 +467,7 @@ public static class Animations
                         .Do(v => Canvas.SetLeft(element, v))
                         .Select(_ => Unit.Default)));
 
-    /// <summary>
-    /// Animates Canvas.Top attached property.
-    /// </summary>
+    /// <summary>Animates Canvas.Top attached property.</summary>
     /// <param name="element">The element to animate.</param>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="to">The target top position.</param>
@@ -546,9 +482,7 @@ public static class Animations
                         .Do(v => Canvas.SetTop(element, v))
                         .Select(_ => Unit.Default)));
 
-    /// <summary>
-    /// Animates SolidColorBrush Color for Background-like properties.
-    /// </summary>
+    /// <summary>Animates SolidColorBrush Color for Background-like properties.</summary>
     /// <param name="brush">The brush to animate.</param>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="to">The target color.</param>
@@ -563,9 +497,7 @@ public static class Animations
                         .Do(p => brush.Color = Lerp(from, to, p))
                         .Select(_ => Unit.Default)));
 
-    /// <summary>
-    /// Scale transform animation.
-    /// </summary>
+    /// <summary>Scale transform animation.</summary>
     /// <param name="element">The element to animate.</param>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="scaleX">Target scale on X.</param>
@@ -597,9 +529,7 @@ public static class Animations
                 },
                 RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
-    /// <summary>
-    /// Skew transform animation.
-    /// </summary>
+    /// <summary>Skew transform animation.</summary>
     /// <param name="element">The element to animate.</param>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="angleX">Target angle X.</param>
@@ -631,9 +561,7 @@ public static class Animations
                 },
                 RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
-    /// <summary>
-    /// Sequences animations in order (Concat) and completes when the last completes.
-    /// </summary>
+    /// <summary>Sequences animations in order (Concat) and completes when the last completes.</summary>
     /// <param name="animations">The animations to play sequentially.</param>
     /// <returns>An observable that completes when all animations finish.</returns>
     public static IObservable<Unit> Sequence(this IEnumerable<IObservable<Unit>> animations)
@@ -646,9 +574,7 @@ public static class Animations
         return animations.Aggregate(Observable.Return(Unit.Default), (acc, next) => acc.Concat(next));
     }
 
-    /// <summary>
-    /// Runs animations in parallel and completes when all complete.
-    /// </summary>
+    /// <summary>Runs animations in parallel and completes when all complete.</summary>
     /// <param name="animations">The animations to play in parallel.</param>
     /// <returns>An observable that completes when all animations finish.</returns>
     public static IObservable<Unit> Parallel(this IEnumerable<IObservable<Unit>> animations)
@@ -661,9 +587,7 @@ public static class Animations
         return animations.Any() ? animations.Merge().LastOrDefaultAsync().Select(_ => Unit.Default) : Observable.Return(Unit.Default);
     }
 
-    /// <summary>
-    /// Repeats an animation a specific number of times. If count is null, repeats forever.
-    /// </summary>
+    /// <summary>Repeats an animation a specific number of times. If count is null, repeats forever.</summary>
     /// <param name="animation">The animation to repeat.</param>
     /// <param name="count">Number of repetitions; null for infinite.</param>
     /// <returns>The repeated animation sequence.</returns>
@@ -679,9 +603,7 @@ public static class Animations
             : animation.Repeat(count.Value);
     }
 
-    /// <summary>
-    /// Applies a stagger to a set of animations (delay incrementally).
-    /// </summary>
+    /// <summary>Applies a stagger to a set of animations (delay incrementally).</summary>
     /// <param name="animations">The animations to stagger.</param>
     /// <param name="staggerBy">The incremental delay between each animation.</param>
     /// <param name="scheduler">Optional scheduler.</param>
@@ -693,19 +615,22 @@ public static class Animations
             throw new ArgumentNullException(nameof(animations));
         }
 
-        var sched = scheduler ?? RxSchedulers.TaskpoolScheduler;
-        var delay = TimeSpan.Zero;
-        foreach (var anim in animations)
+        return StaggerIterator(animations, staggerBy, scheduler);
+
+        static IEnumerable<IObservable<Unit>> StaggerIterator(IEnumerable<IObservable<Unit>> animations, TimeSpan staggerBy, IScheduler? scheduler)
         {
-            var start = Observable.Timer(delay, sched).Select(_ => Unit.Default);
-            yield return start.Concat(anim);
-            delay += staggerBy;
+            var sched = scheduler ?? RxSchedulers.TaskpoolScheduler;
+            var delay = TimeSpan.Zero;
+            foreach (var anim in animations)
+            {
+                var start = Observable.Timer(delay, sched).Select(_ => Unit.Default);
+                yield return start.Concat(anim);
+                delay += staggerBy;
+            }
         }
     }
 
-    /// <summary>
-    /// Helper to create a value animation from a start value to an end value using easing.
-    /// </summary>
+    /// <summary>Helper to create a value animation from a start value to an end value using easing.</summary>
     /// <param name="milliSeconds">The duration in milliseconds.</param>
     /// <param name="from">The start value.</param>
     /// <param name="to">The end value.</param>
@@ -719,9 +644,7 @@ public static class Animations
                 .Distance(to - from)
                 .Select(delta => from + delta));
 
-    /// <summary>
-    /// Animates TranslateTransform X/Y to target values (absolute).
-    /// </summary>
+    /// <summary>Animates TranslateTransform X/Y to target values (absolute).</summary>
     public static IObservable<Unit> TranslateTo(this FrameworkElement element, double milliSeconds, double toX, double toY, Ease easeX = Ease.None, Ease easeY = Ease.None, IScheduler? scheduler = null) =>
         Observable.Defer(() => Observable.Start(
                 () =>
@@ -745,9 +668,7 @@ public static class Animations
                 },
                 RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
-    /// <summary>
-    /// Animates ScaleTransform to target values (absolute).
-    /// </summary>
+    /// <summary>Animates ScaleTransform to target values (absolute).</summary>
     public static IObservable<Unit> ScaleTo(this FrameworkElement element, double milliSeconds, double toScaleX, double toScaleY, Ease easeX = Ease.None, Ease easeY = Ease.None, IScheduler? scheduler = null) =>
         Observable.Defer(() => Observable.Start(
                 () =>
@@ -771,9 +692,7 @@ public static class Animations
                 },
                 RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
-    /// <summary>
-    /// Animates rotation angle to a target value (absolute).
-    /// </summary>
+    /// <summary>Animates rotation angle to a target value (absolute).</summary>
     public static IObservable<Unit> RotateTo(this FrameworkElement element, double milliSeconds, double toAngle, Ease ease = Ease.None, IScheduler? scheduler = null) =>
         Observable.Defer(() => Observable.Start(
                 () =>
@@ -788,9 +707,7 @@ public static class Animations
                 },
                 RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
-    /// <summary>
-    /// Animates skew angles to target values (absolute).
-    /// </summary>
+    /// <summary>Animates skew angles to target values (absolute).</summary>
     public static IObservable<Unit> SkewTo(this FrameworkElement element, double milliSeconds, double toAngleX, double toAngleY, Ease easeX = Ease.None, Ease easeY = Ease.None, IScheduler? scheduler = null) =>
         Observable.Defer(() => Observable.Start(
                 () =>
@@ -814,9 +731,7 @@ public static class Animations
                 },
                 RxSchedulers.MainThreadScheduler).SelectMany(x => x));
 
-    /// <summary>
-    /// Shakes an element horizontally using its TranslateTransform (returns to original position).
-    /// </summary>
+    /// <summary>Shakes an element horizontally using its TranslateTransform (returns to original position).</summary>
     public static IObservable<Unit> ShakeTranslate(this FrameworkElement element, double milliSeconds, double amplitude, int shakes = 6, Ease ease = Ease.None, IScheduler? scheduler = null)
     {
         if (shakes <= 0)
@@ -853,9 +768,7 @@ public static class Animations
                 RxSchedulers.MainThreadScheduler).SelectMany(x => x));
     }
 
-    /// <summary>
-    /// Pulses opacity between two values for a specified number of pulses.
-    /// </summary>
+    /// <summary>Pulses opacity between two values for a specified number of pulses.</summary>
     public static IObservable<Unit> PulseOpacity(this UIElement element, double milliSecondsPerHalf, double low = 0.2, double high = 1.0, int pulses = 1, Ease ease = Ease.None, IScheduler? scheduler = null)
     {
         if (pulses <= 0)
@@ -961,18 +874,14 @@ public static class Animations
         }
     }
 
-    /// <summary>
-    /// Clamps the specified value.
-    /// </summary>
+    /// <summary>Clamps the specified value.</summary>
     /// <param name="value">The value.</param>
     /// <param name="min">The minimum.</param>
     /// <param name="max">The maximum.</param>
     /// <returns>The clamped value.</returns>
     private static double Clamp(double value, double min, double max) => value < min ? min : (value > max ? max : value);
 
-    /// <summary>
-    /// Linear Interpolation between two thicknesses.
-    /// </summary>
+    /// <summary>Linear Interpolation between two thicknesses.</summary>
     private static Thickness Lerp(Thickness a, Thickness b, double t)
     {
         var p = Clamp(t, 0, 1);
@@ -983,9 +892,7 @@ public static class Animations
             a.Bottom + ((b.Bottom - a.Bottom) * p));
     }
 
-    /// <summary>
-    /// Linear Interpolation between two colours.
-    /// </summary>
+    /// <summary>Linear Interpolation between two colours.</summary>
     private static Color Lerp(Color a, Color b, double t)
     {
         var p = Clamp(t, 0, 1);

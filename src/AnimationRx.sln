@@ -10,7 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionConfig", "SolutionC
 		..\Directory.Build.props = ..\Directory.Build.props
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
-		..\stylecop.json = ..\stylecop.json
 		..\version.json = ..\version.json
 	EndProjectSection
 EndProject
@@ -23,6 +22,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimationRx.Avalonia", "AnimationRx.Avalonia\AnimationRx.Avalonia.csproj", "{6A597743-924E-9B79-513B-D5C027F877FC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimationRx.Avalonia.TestApp", "AnimationRx.Avalonia.TestApp\AnimationRx.Avalonia.TestApp.csproj", "{39B1B435-0DA8-FA29-F587-B4E829789303}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimationRx.Tests", "AnimationRx.Tests\AnimationRx.Tests.csproj", "{8D716EDB-0984-4717-AA3C-3D87AE6805AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +49,10 @@ Global
 		{39B1B435-0DA8-FA29-F587-B4E829789303}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39B1B435-0DA8-FA29-F587-B4E829789303}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39B1B435-0DA8-FA29-F587-B4E829789303}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D716EDB-0984-4717-AA3C-3D87AE6805AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D716EDB-0984-4717-AA3C-3D87AE6805AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D716EDB-0984-4717-AA3C-3D87AE6805AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D716EDB-0984-4717-AA3C-3D87AE6805AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
