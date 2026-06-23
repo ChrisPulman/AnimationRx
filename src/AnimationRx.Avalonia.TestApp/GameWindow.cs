@@ -1,5 +1,6 @@
-// Copyright (c) Chris Pulman. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Copyright (c) 2023-2026 Chris Pulman and Contributors. All rights reserved.
+// Chris Pulman and Contributors licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -18,9 +19,7 @@ using ReactiveUI;
 
 namespace AnimationRx.Avalonia.TestApp;
 
-/// <summary>
-/// Game controller for the Avalonia test app.
-/// </summary>
+/// <summary>Game controller for the Avalonia test app.</summary>
 public sealed class GameWindow : IDisposable
 {
     private const double PlayerSpeed = 260.0;
@@ -56,9 +55,7 @@ public sealed class GameWindow : IDisposable
     private double _h;
     private double _v;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GameWindow"/> class.
-    /// </summary>
+    /// <summary>Initializes a new instance of the <see cref="GameWindow"/> class.</summary>
     /// <param name="window">The window.</param>
     /// <exception cref="System.InvalidOperationException">
     /// Playfield not found
@@ -113,9 +110,7 @@ public sealed class GameWindow : IDisposable
         };
     }
 
-    /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-    /// </summary>
+    /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
     public void Dispose()
     {
         if (_disposed)
@@ -218,7 +213,7 @@ public sealed class GameWindow : IDisposable
         _overlay = null;
 
         _titleOverlay.OpacityTo(250, 0, Ease.SineInOut)
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(
                 _ => { },
                 HandleError,
@@ -269,7 +264,7 @@ public sealed class GameWindow : IDisposable
                 .Select(_ => _playfield.Bounds.Size)
                 .Where(s => s.Width > 0 && s.Height > 0)
                 .Take(1)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Subscribe(_ => InitGame(), HandleError)
                 .DisposeWith(_game);
         }
@@ -283,7 +278,7 @@ public sealed class GameWindow : IDisposable
         var frame = Animations.AnimateFrame(60);
 
         var frameDt = frame
-            .Timestamp(RxApp.MainThreadScheduler)
+            .Timestamp(RxSchedulers.MainThreadScheduler)
             .Scan(new { last = DateTimeOffset.Now, dt = 0.016 }, (acc, t) =>
             {
                 var now = t.Timestamp;
@@ -304,7 +299,7 @@ public sealed class GameWindow : IDisposable
 
         // Move player (time based)
         frameDt
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(
             dt =>
             {
@@ -325,26 +320,26 @@ public sealed class GameWindow : IDisposable
 
         // Enemy spawn
         Observable.Interval(TimeSpan.FromMilliseconds(900))
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Do(_ => SpawnEnemy())
             .Subscribe(_ => { }, HandleError)
             .DisposeWith(_game);
 
         // Bullets
         frameDt
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(dt => UpdateBullets(dt), HandleError)
             .DisposeWith(_game);
 
         // Enemies
         frameDt
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(dt => UpdateEnemies(dt), HandleError)
             .DisposeWith(_game);
 
         // Collisions
         frame
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(_ => CheckCollisions(), HandleError)
             .DisposeWith(_game);
 
@@ -468,7 +463,7 @@ public sealed class GameWindow : IDisposable
                     {
                         b1.ColorTo(150, Colors.Yellow, Ease.ExpoOut)
                             .Concat(b1.ColorTo(150, Colors.Black, Ease.ExpoOut))
-                            .ObserveOn(RxApp.MainThreadScheduler)
+                            .ObserveOn(RxSchedulers.MainThreadScheduler)
                             .Subscribe(
                                 _ => { },
                                 HandleError,

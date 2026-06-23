@@ -1,5 +1,6 @@
-﻿// Copyright (c) Chris Pulman. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+﻿// Copyright (c) 2023-2026 Chris Pulman and Contributors. All rights reserved.
+// Chris Pulman and Contributors licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,7 @@ using ReactiveUI;
 
 namespace CP.Animation.TestApp
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml.
-    /// </summary>
+    /// <summary>Interaction logic for MainWindow.xaml.</summary>
     public partial class MainWindow : IDisposable
     {
         // Speeds (pixels per second)
@@ -45,9 +44,7 @@ namespace CP.Animation.TestApp
         private bool _disposedValue;
         private bool _isRunning;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MainWindow"/> class.
-        /// </summary>
+        /// <summary>Initializes a new instance of the <see cref="MainWindow"/> class.</summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -76,18 +73,14 @@ namespace CP.Animation.TestApp
                 .DisposeWith(_lifetime);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
-        /// <summary>
-        /// Releases unmanaged and optionally managed resources.
-        /// </summary>
+        /// <summary>Releases unmanaged and optionally managed resources.</summary>
         /// <param name="disposing">True to dispose managed resources, otherwise false.</param>
         protected virtual void Dispose(bool disposing)
         {
@@ -455,7 +448,7 @@ namespace CP.Animation.TestApp
                         e.Fill = modBrush;
                         modBrush.BrushColorTo(150, Colors.Yellow, Ease.ExpoOut)
                              .Concat(modBrush.BrushColorTo(150, Colors.Black, Ease.ExpoOut))
-                             .ObserveOn(RxApp.MainThreadScheduler)
+                             .ObserveOn(RxSchedulers.MainThreadScheduler)
                              .Subscribe(
                                  _ => { },
                                  HandleError,

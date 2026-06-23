@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" Version="1.56.25" />
+    <PackageReference Include="Microsoft.Reactive.Testing" Version="6.1.0" />
+    <PackageReference Include="coverlet.MTP" Version="10.0.1" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AnimationRx.Wpf\AnimationRx.Wpf.csproj" Aliases="WpfRx" />
+    <ProjectReference Include="..\AnimationRx.Avalonia\AnimationRx.Avalonia.csproj" Aliases="AvaloniaRx" />
+  </ItemGroup>
+
+</Project>

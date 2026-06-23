@@ -9,7 +9,7 @@
     <LangVersion>preview</LangVersion>
     <Configuration>$(TargetFramework)</Configuration>
     <Company>ChrisPulman</Company>
-    <NoWarn>CS1591;IDE0190;IDE1006;CA1510;</NoWarn>
+    <NoWarn>CS1591;IDE0190;IDE1006;CA1510;CA5394;RCS1032;RCS1043;RCS1181;RCS1208;RCS1211;RCS1238;SST1140;SST1147;SST1149;SST1305;SST1418;SST1419;SST1440;SST1442;SST1450;SST1516;SST1600;SST1611;SST1615;SST1618;SST1630;SST1654;SST1655;SST1656;SST1705;</NoWarn>
     <Nullable>enable</Nullable>
     <PackageIcon>logo.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -46,10 +46,9 @@
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(IsTestProject)' != 'true'">
     <!--<Compile Update="**\*.cs" DependentUpon="I%(Filename).cs" />-->
-    <PackageReference Include="stylecop.analyzers" Version="1.2.0-beta.556" PrivateAssets="all" />
+    <PackageReference Include="StyleSharp.Analyzers" Version="3.13.3" PrivateAssets="All" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.15.0" PrivateAssets="All" />
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 </Project>
