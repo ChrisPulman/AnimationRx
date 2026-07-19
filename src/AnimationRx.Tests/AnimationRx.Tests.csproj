@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="TUnit" Version="1.61.0" />
-    <PackageReference Include="Microsoft.Reactive.Testing" Version="6.1.0" />
+    <PackageReference Include="Microsoft.Reactive.Testing" Version="7.0.0" />
     <PackageReference Include="coverlet.MTP" Version="10.0.1" PrivateAssets="All" />
   </ItemGroup>
 
