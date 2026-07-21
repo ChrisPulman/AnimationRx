@@ -48,7 +48,7 @@
 
   <ItemGroup Condition="'$(IsTestProject)' != 'true'">
     <!--<Compile Update="**\*.cs" DependentUpon="I%(Filename).cs" />-->
-    <PackageReference Include="StyleSharp.Analyzers" Version="3.20.0" PrivateAssets="All" />
+    <PackageReference Include="StyleSharp.Analyzers" Version="3.38.1" PrivateAssets="All" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.15.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>
