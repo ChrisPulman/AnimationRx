@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TUnit" Version="1.61.0" />
-    <PackageReference Include="Microsoft.Reactive.Testing" Version="6.1.0" />
-    <PackageReference Include="coverlet.MTP" Version="10.0.1" PrivateAssets="All" />
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="ReactiveUI.Primitives" />
+    <PackageReference Include="coverlet.MTP" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
