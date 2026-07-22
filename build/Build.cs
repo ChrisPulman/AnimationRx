@@ -1,59 +1,51 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
+using AnimationRx.Build;
+using CP.BuildTools;
+using Microsoft.Build.Construction;
 using Nuke.Common;
-using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
-using Nuke.Common.Tools.NerdbankGitVersioning;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.MSBuild;
 using Serilog;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
-using Nuke.Common.Tools.PowerShell;
-using CP.BuildTools;
 
 namespace AnimationRx.Build;
 
-////[GitHubActions(
-////    "BuildOnly",
-////    GitHubActionsImage.WindowsLatest,
-////    OnPushBranchesIgnore = new[] { "main" },
-////    FetchDepth = 0,
-////    InvokedTargets = new[] { nameof(Compile) })]
-////[GitHubActions(
-////    "BuildDeploy",
-////    GitHubActionsImage.WindowsLatest,
-////    OnPushBranches = new[] { "main" },
-////    FetchDepth = 0,
-////    ImportSecrets = new[] { nameof(NuGetApiKey) },
-////    InvokedTargets = new[] { nameof(Compile), nameof(Deploy) })]
 sealed partial class Build : NukeBuild
 {
-    public static int Main() => Execute<Build>(x => x.Compile);
+    public static int Main() => Execute<Build>(x => x.Test);
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    [GitRepository] readonly GitRepository Repository;
-    [Solution(GenerateProjects = true)] readonly Solution Solution;
-    [NerdbankGitVersioning] readonly NerdbankGitVersioning NerdbankVersioning;
-    [Parameter][Secret] readonly string NuGetApiKey;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    private static AbsolutePath SolutionFile => RootDirectory / "src" / "AnimationRx.slnx";
 
+    private static AbsolutePath TestResultsDirectory => RootDirectory / "TestResults";
+
+    readonly Solution Solution = SolutionFile.ReadSolution();
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    AbsolutePath PackagesDirectory => RootDirectory / "output";
+    static AbsolutePath PackagesDirectory => RootDirectory / "output";
 
-    AbsolutePath CoverageDirectory => RootDirectory / "TestResults" / "coverage";
+    IEnumerable<Project> TestProjects => Solution.AllProjects
+        .Where(project => project.Name.EndsWith(".Tests", StringComparison.Ordinal));
 
     Target Print => _ => _
-        .Executes(() => Log.Information("NerdbankVersioning = {Value}", NerdbankVersioning.NuGetPackageVersion));
+        .Executes(() =>
+        {
+            Log.Information("Configuration = {Configuration}", Configuration);
+            Log.Information("MinVerVersionOverride = {Value}", Environment.GetEnvironmentVariable("MinVerVersionOverride") ?? "<auto>");
+            Log.Information("Test projects = {Projects}", string.Join(", ", TestProjects.Select(x => x.Name)));
+        });
 
     Target Clean => _ => _
         .Before(Restore)
-        .Executes(async () =>
+        .Executes(() =>
         {
             if (IsLocalBuild)
             {
@@ -61,7 +53,6 @@ sealed partial class Build : NukeBuild
             }
 
             PackagesDirectory.CreateOrCleanDirectory();
-            DotNetWorkloadUpdate();
         });
 
     Target Restore => _ => _
@@ -73,189 +64,106 @@ sealed partial class Build : NukeBuild
         .Executes(() => DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
-                .EnableNoRestore()));
+                .SetNoRestore(true)));
 
     Target Test => _ => _
         .DependsOn(Compile)
         .Executes(() =>
         {
-            CoverageDirectory.CreateOrCleanDirectory();
-
-            var testProjects = Solution.AllProjects
-                .Where(project => project.Name.EndsWith("Tests", StringComparison.Ordinal))
-                .ToList();
-
-            if (testProjects.Count == 0)
+            foreach (var project in TestProjects)
             {
-                throw new InvalidOperationException("No test projects were found in the solution.");
-            }
-
-            DotNetTest(settings => settings
-                .SetConfiguration(Configuration)
-                .EnableNoRestore()
-                .CombineWith(testProjects, (testSettings, project) => testSettings
+                DotNetTest(s => s
                     .SetProjectFile(project)
-                    .SetProcessAdditionalArguments(
+                    .SetConfiguration(Configuration)
+                    .SetNoBuild(true)
+                    .SetNoRestore(true)
+                    .SetResultsDirectory(TestResultsDirectory / "tests"));
+            }
+        });
+
+    Target Coverage => _ => _
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
+            TestResultsDirectory.CreateOrCleanDirectory();
+
+            foreach (var project in TestProjects)
+            {
+                DotNetTest(s => s
+                    .SetProjectFile(project)
+                    .SetConfiguration(Configuration)
+                    .SetNoBuild(true)
+                    .SetNoRestore(true)
+                    .SetResultsDirectory(TestResultsDirectory)
+                    .AddProcessAdditionalArguments(
                         "--coverlet",
                         "--coverlet-output-format",
                         "cobertura",
-                        "--coverlet-file-prefix",
-                        project.Name,
-                        "--results-directory",
-                        CoverageDirectory,
                         "--coverlet-include",
                         "[AnimationRx.Wpf]*",
                         "--coverlet-include",
                         "[AnimationRx.Avalonia]*",
                         "--coverlet-exclude",
-                        "[AnimationRx.Tests]*",
-                        "--coverlet-exclude",
-                        "[TUnit*]*",
-                        "--coverlet-exclude",
-                        "[Microsoft.*]*",
-                        "--coverlet-exclude",
-                        "[System.*]*",
+                        "[*.Tests]*",
                         "--coverlet-exclude-by-file",
-                        "**/AnimationRx.Wpf/Animations.cs",
+                        "**/obj/**/*.cs",
                         "--coverlet-exclude-by-file",
-                        "**/AnimationRx.Avalonia/Animations.cs")));
-
-            ValidateCoverageReports();
-        });
-
-    Target Pack => _ => _
-    .DependsOn(Test)
-    .Produces(PackagesDirectory / "*.nupkg")
-    .Executes(() =>
-    {
-        if (Repository.IsOnMainOrMasterBranch())
-        {
-            var packableProjects = Solution.GetPackableProjects();
-
-            foreach (var project in packableProjects!)
-            {
-                Log.Information("Packing {Project}", project.Name);
+                        "**/*.g.cs",
+                        "--coverlet-exclude-by-file",
+                        "**/*.g.i.cs",
+                        "--coverlet-exclude-by-file",
+                        "**/*AssemblyInfo.cs",
+                        "--coverlet-exclude-by-attribute",
+                        "GeneratedCodeAttribute",
+                        "--coverlet-exclude-by-attribute",
+                        "CompilerGeneratedAttribute",
+                        "--coverlet-exclude-by-attribute",
+                        "ExcludeFromCodeCoverageAttribute"));
             }
 
-            DotNetPack(settings => settings
-                .SetConfiguration(Configuration)
-                .SetVersion(NerdbankVersioning.NuGetPackageVersion)
-                .SetOutputDirectory(PackagesDirectory)
-                .CombineWith(packableProjects, (packSettings, project) =>
-                    packSettings.SetProject(project)));
-        }
-    });
+            VerifyCoverage();
+        });
 
-    Target Deploy => _ => _
-    .DependsOn(Pack)
-    .Requires(() => NuGetApiKey)
-    .Executes(() =>
+    static void VerifyCoverage()
     {
-        if (Repository.IsOnMainOrMasterBranch())
-        {
-            DotNetNuGetPush(settings => settings
-                        .SetSource(this.PublicNuGetSource())
-                        .SetSkipDuplicate(true)
-                        .SetApiKey(NuGetApiKey)
-                        .CombineWith(PackagesDirectory.GlobFiles("*.nupkg"), (s, v) => s.SetTargetPath(v)),
-                    degreeOfParallelism: 5, completeOnFailure: true);
-        }
-    });
-
-    void ValidateCoverageReports()
-    {
-        var reports = CoverageDirectory.GlobFiles("*.xml").ToList();
+        var reports = TestResultsDirectory.GlobFiles("**/*cobertura*.xml").ToList();
         if (reports.Count == 0)
         {
-            throw new InvalidOperationException($"No Cobertura coverage reports were found in {CoverageDirectory}.");
+            throw new InvalidOperationException($"No Cobertura coverage reports were produced under {TestResultsDirectory}.");
         }
 
-        foreach (var report in reports)
-        {
-            ValidateCoverageReport(report);
-        }
-    }
-
-    static void ValidateCoverageReport(AbsolutePath report)
-    {
-        var document = XDocument.Load(report);
-        var root = document.Root ?? throw new InvalidOperationException($"Coverage report {report} has no root element.");
-
-        EnsureRate(root, "line-rate", report);
-        EnsureRate(root, "branch-rate", report);
-        EnsureNoTestCodeIncluded(document, report);
-        EnsureAllMethodsFullyCovered(document, report);
-
-        Log.Information("Validated 100% line, branch, and method coverage for {Report}", report);
-    }
-
-    static void EnsureRate(XElement element, string attributeName, AbsolutePath report)
-    {
-        var rate = ReadRate(element, attributeName, report);
-        if (rate != 1m)
-        {
-            throw new InvalidOperationException(
-                $"{report} reported {attributeName} {rate:P2}; expected 100.00%.");
-        }
-    }
-
-    static void EnsureNoTestCodeIncluded(XDocument document, AbsolutePath report)
-    {
-        var testEntries = document
-            .Descendants("class")
-            .Where(element => ContainsTestCode(element.Attribute("name")?.Value) ||
-                              ContainsTestCode(element.Attribute("filename")?.Value))
-            .Select(element => element.Attribute("name")?.Value ?? element.Attribute("filename")?.Value ?? "unknown")
+        var expectedPackages = new[] { "AnimationRx.Avalonia", "AnimationRx.Wpf" };
+        var packages = reports
+            .SelectMany(report => XDocument.Load(report)
+                .Descendants("package")
+                .Select(package => new
+                {
+                    Report = report,
+                    Name = package.Attribute("name")?.Value ?? string.Empty,
+                    LineRate = ParseRate(package.Attribute("line-rate")?.Value),
+                    BranchRate = ParseRate(package.Attribute("branch-rate")?.Value)
+                }))
             .ToList();
 
-        if (testEntries.Count > 0)
+        var actualPackages = packages.Select(x => x.Name).Distinct(StringComparer.Ordinal).OrderBy(x => x).ToArray();
+        if (!expectedPackages.OrderBy(x => x).SequenceEqual(actualPackages, StringComparer.Ordinal))
         {
             throw new InvalidOperationException(
-                $"{report} includes test code in coverage results: {string.Join(", ", testEntries)}.");
+                $"Coverage must contain only {string.Join(", ", expectedPackages)}; found {string.Join(", ", actualPackages)}.");
+        }
+
+        foreach (var package in packages)
+        {
+            if (package.LineRate == 1m && package.BranchRate == 1m)
+            {
+                continue;
+            }
+
+            throw new InvalidOperationException(
+                $"{package.Name} coverage is below 100% in {package.Report}: lines={package.LineRate:P2}, branches={package.BranchRate:P2}.");
         }
     }
 
-    static void EnsureAllMethodsFullyCovered(XDocument document, AbsolutePath report)
-    {
-        var missedMethods = document
-            .Descendants("method")
-            .Where(method => ReadRate(method, "line-rate", report) != 1m ||
-                             ReadRate(method, "branch-rate", report) != 1m)
-            .Select(MethodDisplayName)
-            .ToList();
-
-        if (missedMethods.Count > 0)
-        {
-            throw new InvalidOperationException(
-                $"{report} contains methods below 100% coverage: {string.Join(", ", missedMethods)}.");
-        }
-    }
-
-    static decimal ReadRate(XElement element, string attributeName, AbsolutePath report)
-    {
-        var value = element.Attribute(attributeName)?.Value;
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            throw new InvalidOperationException(
-                $"{report} does not contain the expected '{attributeName}' attribute.");
-        }
-
-        return decimal.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
-    }
-
-    static bool ContainsTestCode(string? value) =>
-        value?.Contains("AnimationRx.Tests", StringComparison.OrdinalIgnoreCase) == true ||
-        value?.Contains(".Tests.", StringComparison.OrdinalIgnoreCase) == true ||
-        value?.Contains(".Tests/", StringComparison.OrdinalIgnoreCase) == true ||
-        value?.Contains(".Tests\\", StringComparison.OrdinalIgnoreCase) == true;
-
-    static string MethodDisplayName(XElement method)
-    {
-        var className = method.Ancestors("class").FirstOrDefault()?.Attribute("name")?.Value;
-        var methodName = method.Attribute("name")?.Value;
-
-        return string.IsNullOrWhiteSpace(className)
-            ? methodName ?? "unknown"
-            : $"{className}.{methodName}";
-    }
+    static decimal ParseRate(string? value) =>
+        decimal.Parse(value ?? "0", NumberStyles.Number, CultureInfo.InvariantCulture);
 }
