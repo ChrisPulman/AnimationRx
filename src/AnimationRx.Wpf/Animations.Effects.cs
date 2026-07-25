@@ -5,7 +5,11 @@
 using System.Windows;
 using System.Windows.Media;
 
+#if REACTIVE_SHIM
+namespace CP.AnimationRx.Reactive;
+#else
 namespace CP.AnimationRx;
+#endif
 
 /// <summary>Provides WPF animation composition and effect helpers.</summary>
 public static partial class Animations

@@ -4,9 +4,17 @@
 
 using Avalonia;
 using Avalonia.Media;
-using ReactiveUI.Avalonia;
+#if REACTIVE_SHIM
+using ReactiveUI.Primitives.Reactive.Concurrency;
+#else
+using ReactiveUI.Primitives.Concurrency;
+#endif
 
+#if REACTIVE_SHIM
+namespace CP.AnimationRx.Reactive;
+#else
 namespace CP.AnimationRx;
+#endif
 
 /// <summary>Provides shared Avalonia animation helper methods.</summary>
 public static partial class AnimationsExtensions

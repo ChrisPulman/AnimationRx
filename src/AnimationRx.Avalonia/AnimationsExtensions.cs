@@ -7,7 +7,11 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 
+#if REACTIVE_SHIM
+namespace CP.AnimationRx.Reactive;
+#else
 namespace CP.AnimationRx;
+#endif
 
 /// <summary>Provides Avalonia animation timing and core extension helpers.</summary>
 public static partial class AnimationsExtensions
@@ -345,14 +349,14 @@ public static partial class AnimationsExtensions
         /// An observable that completes when the animation has repeated the specified number of times.
         /// </returns>
         public IObservable<Unit> RepeatAnimation(int count) =>
-            animation.Repeat(count);
+            AnimationRepeat.Repeat(animation, count);
 
         /// <summary>Repeats an animation forever.</summary>
         /// <returns>
         /// An observable that repeats the animation indefinitely until unsubscribed.
         /// </returns>
         public IObservable<Unit> RepeatAnimation() =>
-            animation.Repeat();
+            AnimationRepeat.Repeat(animation, null);
     }
 
     /// <summary>Provides elapsed-time projection extension methods.</summary>

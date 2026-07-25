@@ -12,12 +12,15 @@
 	<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.301" />
 	<PackageVersion Include="MinVer" Version="7.0.0" />
 	<PackageVersion Include="Nuke.Common" Version="10.1.0" />
-	<PackageVersion Include="ReactiveUI.Avalonia" Version="12.1.0-beta.1" />
-	<PackageVersion Include="ReactiveUI.Primitives" Version="7.0.0" />
-	<PackageVersion Include="ReactiveUI.Wpf" Version="24.0.0-beta.3" />
+	<PackageVersion Include="ReactiveUI.Primitives" Version="7.1.0" />
+	<PackageVersion Include="ReactiveUI.Primitives.Reactive" Version="7.1.0" />
+	<PackageVersion Include="ReactiveUI.Primitives.Avalonia" Version="7.1.0" />
+	<PackageVersion Include="ReactiveUI.Primitives.Avalonia.Reactive" Version="7.1.0" />
+	<PackageVersion Include="ReactiveUI.Primitives.Wpf.Reactive" Version="7.1.0" />
+	<PackageVersion Include="ReactiveUI.Primitives.Wpf" Version="7.1.0" />
 	<PackageVersion Include="Roslynator.Analyzers" Version="4.15.0" />
 	<PackageVersion Include="StyleSharp.Analyzers" Version="3.38.1" />
 	<PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.10" />
-	<PackageVersion Include="TUnit" Version="1.61.23" />
+	<PackageVersion Include="TUnit" Version="1.61.38" />
   </ItemGroup>
 </Project>
