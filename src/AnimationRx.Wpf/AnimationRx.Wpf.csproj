@@ -10,13 +10,16 @@
 
   <ItemGroup>
     <PackageReference Include="ReactiveUI.Primitives" />
-    <PackageReference Include="ReactiveUI.Wpf" />
+    <PackageReference Include="ReactiveUI.Primitives.Wpf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\AnimationRx.Shared\*.cs" Link="Shared\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="ReactiveUI.Primitives" />
     <Using Include="ReactiveUI.Primitives.Concurrency.TaskPoolSequencer" Alias="TaskPoolScheduler" />
-    <Using Include="ReactiveUI.Primitives.Concurrency.SynchronizationContextSequencer" Alias="SynchronizationContextScheduler" />
     <Using Include="ReactiveUI.Primitives.Disposables.MultipleDisposable" Alias="CompositeDisposable" />
     <Using Include="ReactiveUI.Primitives.RxVoid" Alias="Unit" />
     <Using Include="ReactiveUI.Primitives.Signals.Signal" Alias="Observable" />

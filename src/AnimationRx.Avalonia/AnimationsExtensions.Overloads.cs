@@ -7,7 +7,11 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 
+#if REACTIVE_SHIM
+namespace CP.AnimationRx.Reactive;
+#else
 namespace CP.AnimationRx;
+#endif
 
 /// <summary>Provides overloads for AnimationsExtensions.</summary>
 public static partial class AnimationsExtensions

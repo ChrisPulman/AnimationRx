@@ -11,9 +11,12 @@
   <Project Path="../build/_build.csproj">
     <Build Project="false" />
   </Project>
+  <Project Path="AnimationRx.Avalonia.Reactive/AnimationRx.Avalonia.Reactive.csproj" />
   <Project Path="AnimationRx.Avalonia.TestApp/AnimationRx.Avalonia.TestApp.csproj" />
   <Project Path="AnimationRx.Avalonia/AnimationRx.Avalonia.csproj" />
+  <Project Path="AnimationRx.Reactive.Tests/AnimationRx.Reactive.Tests.csproj" />
   <Project Path="AnimationRx.Tests/AnimationRx.Tests.csproj" />
+  <Project Path="AnimationRx.Wpf.Reactive/AnimationRx.Wpf.Reactive.csproj" />
   <Project Path="AnimationRx.Wpf.TestApp/AnimationRx.Wpf.TestApp.csproj" />
   <Project Path="AnimationRx.Wpf/AnimationRx.Wpf.csproj" />
 </Solution>

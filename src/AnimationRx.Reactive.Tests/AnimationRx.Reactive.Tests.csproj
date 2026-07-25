@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <IsPackable>false</IsPackable>
+    <DefineConstants>$(DefineConstants);REACTIVE_TESTS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\AnimationRx.Tests\*.cs" Link="LeanTests\%(Filename)%(Extension)" Exclude="..\AnimationRx.Tests\bin\**;..\AnimationRx.Tests\obj\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="ReactiveUI.Primitives.Reactive" />
+    <PackageReference Include="coverlet.MTP" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AnimationRx.Wpf.Reactive\AnimationRx.Wpf.Reactive.csproj" Aliases="WpfReactiveRx" />
+    <ProjectReference Include="..\AnimationRx.Avalonia.Reactive\AnimationRx.Avalonia.Reactive.csproj" Aliases="AvaloniaReactiveRx" />
+  </ItemGroup>
+
+</Project>

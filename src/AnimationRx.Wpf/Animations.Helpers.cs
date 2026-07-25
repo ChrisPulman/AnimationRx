@@ -5,8 +5,17 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
+#if REACTIVE_SHIM
+using ReactiveUI.Primitives.Reactive.Concurrency;
+#else
+using ReactiveUI.Primitives.Concurrency;
+#endif
 
+#if REACTIVE_SHIM
+namespace CP.AnimationRx.Reactive;
+#else
 namespace CP.AnimationRx;
+#endif
 
 /// <summary>Provides shared WPF animation helper methods.</summary>
 public static partial class Animations
@@ -153,12 +162,12 @@ public static partial class Animations
 
     /// <summary>Creates a scheduler for the current WPF dispatcher.</summary>
     /// <returns>The dispatcher-backed scheduler.</returns>
-    private static SynchronizationContextScheduler CreateUiScheduler()
+    private static IScheduler CreateUiScheduler()
     {
         var dispatcher = Application.Current?.Dispatcher
             ?? Dispatcher.CurrentDispatcher;
 
-        return new(new DispatcherSynchronizationContext(dispatcher));
+        return new DispatcherSequencer(dispatcher);
     }
 
     /// <summary>Clamps the specified value.</summary>

@@ -2,11 +2,29 @@
 // Chris Pulman licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+#if REACTIVE_TESTS
+extern alias WpfReactiveRx;
+#else
 extern alias WpfRx;
+#endif
 
+#if REACTIVE_TESTS
+using ReactiveUI.Primitives.Reactive;
+#else
 using ReactiveUI.Primitives;
+#endif
 using TUnit.Assertions;
 using TUnit.Core;
+#if REACTIVE_TESTS
+using Observable = ReactiveUI.Primitives.Reactive.Signals.Signal;
+using RxAnimations = WpfReactiveRx::CP.AnimationRx.Reactive.Animations;
+using RxDuration = WpfReactiveRx::CP.AnimationRx.Reactive.Duration;
+using RxEase = WpfReactiveRx::CP.AnimationRx.Reactive.Ease;
+using RxEases = WpfReactiveRx::CP.AnimationRx.Reactive.Eases;
+using RxEasesExtensions = WpfReactiveRx::CP.AnimationRx.Reactive.EasesExtensions;
+using TestScheduler = System.Reactive.Concurrency.HistoricalScheduler;
+using Unit = System.Reactive.Unit;
+#else
 using Observable = ReactiveUI.Primitives.Signals.Signal;
 using RxAnimations = WpfRx::CP.AnimationRx.Animations;
 using RxDuration = WpfRx::CP.AnimationRx.Duration;
@@ -15,6 +33,7 @@ using RxEases = WpfRx::CP.AnimationRx.Eases;
 using RxEasesExtensions = WpfRx::CP.AnimationRx.EasesExtensions;
 using TestScheduler = ReactiveUI.Primitives.Concurrency.VirtualClock;
 using Unit = ReactiveUI.Primitives.RxVoid;
+#endif
 
 namespace AnimationRx.Tests;
 

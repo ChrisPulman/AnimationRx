@@ -102,7 +102,11 @@ sealed partial class Build : NukeBuild
                         "--coverlet-include",
                         "[AnimationRx.Wpf]*",
                         "--coverlet-include",
+                        "[AnimationRx.Wpf.Reactive]*",
+                        "--coverlet-include",
                         "[AnimationRx.Avalonia]*",
+                        "--coverlet-include",
+                        "[AnimationRx.Avalonia.Reactive]*",
                         "--coverlet-exclude",
                         "[*.Tests]*",
                         "--coverlet-exclude-by-file",
@@ -132,7 +136,13 @@ sealed partial class Build : NukeBuild
             throw new InvalidOperationException($"No Cobertura coverage reports were produced under {TestResultsDirectory}.");
         }
 
-        var expectedPackages = new[] { "AnimationRx.Avalonia", "AnimationRx.Wpf" };
+        var expectedPackages = new[]
+        {
+            "AnimationRx.Avalonia",
+            "AnimationRx.Avalonia.Reactive",
+            "AnimationRx.Wpf",
+            "AnimationRx.Wpf.Reactive"
+        };
         var packages = reports
             .SelectMany(report => XDocument.Load(report)
                 .Descendants("package")

@@ -6,7 +6,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
+#if REACTIVE_SHIM
+namespace CP.AnimationRx.Reactive;
+#else
 namespace CP.AnimationRx;
+#endif
 
 /// <summary>Provides overloads for Animations.</summary>
 public static partial class Animations
@@ -842,7 +846,7 @@ public static partial class Animations
     /// <param name="animation">The animation value.</param>
     /// <returns>The resulting observable.</returns>
     public static IObservable<Unit> RepeatAnimation(IObservable<Unit> animation) =>
-        RepeatAnimation(animation);
+        AnimationRepeat.Repeat(animation, null);
 
     /// <summary>Calls the overload with default arguments.</summary>
     /// <param name="animations">The animations value.</param>

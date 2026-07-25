@@ -2,11 +2,30 @@
 // Chris Pulman licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+#if REACTIVE_TESTS
+extern alias AvaloniaReactiveRx;
+#else
 extern alias AvaloniaRx;
+#endif
 
+#if REACTIVE_TESTS
+using ReactiveUI.Primitives.Reactive;
+#else
 using ReactiveUI.Primitives;
+#endif
 using TUnit.Assertions;
 using TUnit.Core;
+#if REACTIVE_TESTS
+using Observable = ReactiveUI.Primitives.Reactive.Signals.Signal;
+using RxAnimations = AvaloniaReactiveRx::CP.AnimationRx.Reactive.Animations;
+using RxAnimationsExtensions = AvaloniaReactiveRx::CP.AnimationRx.Reactive.AnimationsExtensions;
+using RxDuration = AvaloniaReactiveRx::CP.AnimationRx.Reactive.Duration;
+using RxEase = AvaloniaReactiveRx::CP.AnimationRx.Reactive.Ease;
+using RxEases = AvaloniaReactiveRx::CP.AnimationRx.Reactive.Eases;
+using RxEasesExtensions = AvaloniaReactiveRx::CP.AnimationRx.Reactive.EasesExtensions;
+using TestScheduler = System.Reactive.Concurrency.HistoricalScheduler;
+using Unit = System.Reactive.Unit;
+#else
 using Observable = ReactiveUI.Primitives.Signals.Signal;
 using RxAnimations = AvaloniaRx::CP.AnimationRx.Animations;
 using RxAnimationsExtensions = AvaloniaRx::CP.AnimationRx.AnimationsExtensions;
@@ -16,6 +35,7 @@ using RxEases = AvaloniaRx::CP.AnimationRx.Eases;
 using RxEasesExtensions = AvaloniaRx::CP.AnimationRx.EasesExtensions;
 using TestScheduler = ReactiveUI.Primitives.Concurrency.VirtualClock;
 using Unit = ReactiveUI.Primitives.RxVoid;
+#endif
 
 namespace AnimationRx.Tests;
 

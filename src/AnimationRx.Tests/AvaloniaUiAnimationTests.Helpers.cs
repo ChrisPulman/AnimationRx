@@ -2,21 +2,36 @@
 // Chris Pulman licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+#if REACTIVE_TESTS
+extern alias AvaloniaReactiveRx;
+#else
 extern alias AvaloniaRx;
+#endif
 
 using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
+#if !REACTIVE_TESTS
 using ReactiveUI.Primitives;
 using ReactiveUI.Primitives.Concurrency;
+#endif
 using TUnit.Assertions;
+#if REACTIVE_TESTS
+using ISequencer = System.Reactive.Concurrency.IScheduler;
+using Observable = ReactiveUI.Primitives.Reactive.Signals.Signal;
+using RxAnimationsExtensions = AvaloniaReactiveRx::CP.AnimationRx.Reactive.AnimationsExtensions;
+using RxDuration = AvaloniaReactiveRx::CP.AnimationRx.Reactive.Duration;
+using RxEase = AvaloniaReactiveRx::CP.AnimationRx.Reactive.Ease;
+using Unit = System.Reactive.Unit;
+#else
 using Observable = ReactiveUI.Primitives.Signals.Signal;
 using RxAnimationsExtensions = AvaloniaRx::CP.AnimationRx.AnimationsExtensions;
 using RxDuration = AvaloniaRx::CP.AnimationRx.Duration;
 using RxEase = AvaloniaRx::CP.AnimationRx.Ease;
 using Unit = ReactiveUI.Primitives.RxVoid;
+#endif
 
 namespace AnimationRx.Tests;
 

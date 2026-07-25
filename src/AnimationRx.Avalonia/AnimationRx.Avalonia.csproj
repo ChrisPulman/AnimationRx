@@ -10,7 +10,11 @@
 
   <ItemGroup>
     <PackageReference Include="ReactiveUI.Primitives" />
-    <PackageReference Include="ReactiveUI.Avalonia" />
+    <PackageReference Include="ReactiveUI.Primitives.Avalonia" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\AnimationRx.Shared\*.cs" Link="Shared\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

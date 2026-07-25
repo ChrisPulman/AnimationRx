@@ -6,7 +6,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
+#if REACTIVE_SHIM
+namespace CP.AnimationRx.Reactive;
+#else
 namespace CP.AnimationRx;
+#endif
 
 /// <summary>Provides WPF transform and layout animation helpers.</summary>
 public static partial class Animations
@@ -598,7 +602,7 @@ public static partial class Animations
     /// <param name="count">The count value.</param>
     /// <returns>The resulting observable.</returns>
     public static IObservable<Unit> RepeatAnimation(IObservable<Unit> animation, int count) =>
-        animation.Repeat(count);
+        AnimationRepeat.Repeat(animation, count);
 
     /// <summary>Delegates to the matching animation helper.</summary>
     /// <param name="animations">The animations value.</param>

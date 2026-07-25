@@ -12,7 +12,7 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using CP.AnimationRx;
-using ReactiveUI.Avalonia;
+using ReactiveUI.Primitives.Concurrency;
 
 namespace AnimationRx.Avalonia.TestApp;
 

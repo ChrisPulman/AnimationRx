@@ -2,20 +2,37 @@
 // Chris Pulman licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
+#if REACTIVE_TESTS
+extern alias WpfReactiveRx;
+#else
 extern alias WpfRx;
+#endif
 
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+#if REACTIVE_TESTS
+using ReactiveUI.Primitives.Reactive;
+#else
 using ReactiveUI.Primitives;
 using ReactiveUI.Primitives.Concurrency;
+#endif
 using TUnit.Assertions;
 using TUnit.Core;
 using TUnit.Core.Executors;
+#if REACTIVE_TESTS
+using Observable = ReactiveUI.Primitives.Reactive.Signals.Signal;
+using RxAnimations = WpfReactiveRx::CP.AnimationRx.Reactive.Animations;
+using RxAnimationsExtensions = WpfReactiveRx::CP.AnimationRx.Reactive.AnimationsExtensions;
+using RxEase = WpfReactiveRx::CP.AnimationRx.Reactive.Ease;
+using Unit = System.Reactive.Unit;
+#else
 using Observable = ReactiveUI.Primitives.Signals.Signal;
 using RxAnimations = WpfRx::CP.AnimationRx.Animations;
+using RxAnimationsExtensions = WpfRx::CP.AnimationRx.AnimationsExtensions;
 using RxEase = WpfRx::CP.AnimationRx.Ease;
 using Unit = ReactiveUI.Primitives.RxVoid;
+#endif
 
 namespace AnimationRx.Tests;
 
@@ -277,7 +294,7 @@ public sealed partial class WpfUiAnimationTests
         var context = new WpfReflectionContext();
 
         InvokeFacadeMethods(typeof(RxAnimations), context);
-        InvokeFacadeMethods(typeof(WpfRx::CP.AnimationRx.AnimationsExtensions), context);
+        InvokeFacadeMethods(typeof(RxAnimationsExtensions), context);
 
         await Assert.That(context.InvokedCount).IsGreaterThan(0);
     }
