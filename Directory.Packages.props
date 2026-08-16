@@ -15,7 +15,7 @@
 	<PackageVersion Include="ReactiveUI.Primitives" Version="7.1.0" />
 	<PackageVersion Include="ReactiveUI.Primitives.Reactive" Version="7.1.1" />
 	<PackageVersion Include="ReactiveUI.Primitives.Avalonia" Version="7.1.0" />
-	<PackageVersion Include="ReactiveUI.Primitives.Avalonia.Reactive" Version="7.1.0" />
+	<PackageVersion Include="ReactiveUI.Primitives.Avalonia.Reactive" Version="7.2.0" />
 	<PackageVersion Include="ReactiveUI.Primitives.Wpf.Reactive" Version="7.1.1" />
 	<PackageVersion Include="ReactiveUI.Primitives.Wpf" Version="7.1.0" />
 	<PackageVersion Include="Roslynator.Analyzers" Version="4.16.0" />
