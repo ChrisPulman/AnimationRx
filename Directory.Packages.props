@@ -9,7 +9,7 @@
 	<PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.1" />
 	<PackageVersion Include="coverlet.MTP" Version="10.0.1" />
 	<PackageVersion Include="CP.Nuke.BuildTools" Version="3.0.2" />
-	<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.301" />
+	<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.400" />
 	<PackageVersion Include="MinVer" Version="7.0.0" />
 	<PackageVersion Include="Nuke.Common" Version="10.1.0" />
 	<PackageVersion Include="ReactiveUI.Primitives" Version="7.2.0" />
