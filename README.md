@@ -9,18 +9,29 @@
 
 # AnimationRx
 
-Reactive, composable animation primitives for **WPF** and **Avalonia**. Extends ReactiveUI for Schedulers and Rx conventions.
+Reactive, composable animation primitives for **WPF** and **Avalonia**, built on ReactiveUI.Primitives.
 
-AnimationRx exposes animations as `IObservable<Unit>` (for effects that complete) and value streams like `IObservable<double>` (for interpolated values). This makes animations easy to **compose**, **sequence**, **run in parallel**, **cancel** (dispose), and **bind** to reactive view-models.
+The default packages expose animations as `IObservable<RxVoid>` (for effects that complete) and value streams like `IObservable<double>` (for interpolated values), using `ISequencer` for scheduling. The `.Reactive` packages retain System.Reactive's `Unit` and `IScheduler`. This makes animations easy to **compose**, **sequence**, **run in parallel**, **cancel** (dispose), and **bind** to reactive view-models.
 
-- **AnimationRx.Wpf**: targets .NET Framework `4.6.2`, `4.7.2`, `4.8` and `.NET 8/9/10 (windows)`.
-- **AnimationRx.Avalonia**: targets `.NET 8/9/10`.
+- **AnimationRx.Wpf** and **AnimationRx.Wpf.Reactive**: target .NET Framework `4.6.2`, `4.7.2`, `4.8`, `4.8.1` and `.NET 8/9/10/11 (windows)`.
+- **AnimationRx.Avalonia** and **AnimationRx.Avalonia.Reactive**: target `.NET 8/9/10/11`.
+
+The .NET 11 targets require a .NET 11 SDK, currently a release candidate.
 
 > Cancellation model: every animation is an `IObservable`. Dispose the subscription returned by `Subscribe()` to cancel mid-flight.
 
 ---
 
 ## Packages
+
+Choose one reactive model per pipeline:
+
+| UI platform | Lean package (`CP.AnimationRx`) | System.Reactive compatibility (`CP.AnimationRx.Reactive`) |
+| --- | --- | --- |
+| WPF | `AnimationRx.Wpf` | `AnimationRx.Wpf.Reactive` |
+| Avalonia | `AnimationRx.Avalonia` | `AnimationRx.Avalonia.Reactive` |
+
+Each package references the matching ReactiveUI.Primitives platform package. NuGet selects the framework-specific assets for the consuming TFM; do not add System.Reactive to a lean project solely for scheduling or disposables. Dependency versions are maintained in `Directory.Packages.props`.
 
 ### AnimationRx.Wpf
 
@@ -46,7 +57,6 @@ Package Manager:
 
 ```csharp
 using CP.AnimationRx;
-using System.Reactive.Disposables;
 
 // Fade in over 300ms using Sine ease
 var d = someElement
@@ -67,6 +77,22 @@ someVisual
     .OpacityTo(250, 0.0, Ease.SineOut)
     .Subscribe();
 ```
+
+---
+
+## Building and testing
+
+On Windows, with the .NET 11 SDK installed, run from the repository root:
+
+```powershell
+dotnet build src\AnimationRx.slnx -c Release
+dotnet test --solution src\AnimationRx.slnx -c Release
+dotnet test --solution src\AnimationRx.slnx -c Release --coverlet --coverlet-output-format cobertura --coverlet-include "[AnimationRx.*]*" --coverlet-threshold 100 --coverlet-threshold-type line,branch,method --coverlet-threshold-stat minimum --results-directory TestResults --results-directory-layout per-module
+```
+
+Both TUnit suites run on Microsoft.Testing.Platform: one exercises the lean packages and the other runs the same behavioral tests against the `.Reactive` packages. Coverage includes all four AnimationRx library assemblies, excludes third-party dependencies, and requires 100% line, branch, and method coverage for each assembly. Per-module output directories preserve both suites' Cobertura reports under `TestResults`.
+
+Compiler and analyzer warnings fail the build. The solution builds every library TFM; the TUnit suites execute on .NET 10 Windows.
 
 ---
 

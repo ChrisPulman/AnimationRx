@@ -225,59 +225,29 @@ public sealed partial class GameWindow : IDisposable
     /// <param name="e">The key event data.</param>
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
-        switch (e.Key)
+        if (e.Key is Key.Enter or Key.R && !_isRunning)
         {
-            case Key.Enter or Key.R:
-            {
-                if (!_isRunning)
-                {
-                    StartGame();
-                    e.Handled = true;
-                }
-
-                break;
-            }
-
-            case Key.Space:
-            {
-                if (_isRunning)
-                {
-                    FireBullet();
-                    e.Handled = true;
-                }
-
-                break;
-            }
-
-            case Key.Left or Key.A:
-            {
-                _horizontalInput = NegativeInput;
-                break;
-            }
-
-            case Key.Right or Key.D:
-            {
-                _horizontalInput = PositiveInput;
-                break;
-            }
-
-            case Key.Up:
-            {
-                _verticalInput = NegativeInput;
-                break;
-            }
-
-            case Key.Down:
-            {
-                _verticalInput = PositiveInput;
-                break;
-            }
-
-            default:
-            {
-                break;
-            }
+            StartGame();
+            e.Handled = true;
         }
+        else if (e.Key is Key.Space && _isRunning)
+        {
+            FireBullet();
+            e.Handled = true;
+        }
+
+        _horizontalInput = e.Key switch
+        {
+            Key.Left or Key.A => NegativeInput,
+            Key.Right or Key.D => PositiveInput,
+            _ => _horizontalInput,
+        };
+        _verticalInput = e.Key switch
+        {
+            Key.Up => NegativeInput,
+            Key.Down => PositiveInput,
+            _ => _verticalInput,
+        };
     }
 
     /// <summary>Handles key-up input.</summary>
@@ -285,24 +255,13 @@ public sealed partial class GameWindow : IDisposable
     /// <param name="e">The key event data.</param>
     private void OnKeyUp(object? sender, KeyEventArgs e)
     {
-        switch (e.Key)
+        if (e.Key is Key.Left or Key.A or Key.Right or Key.D)
         {
-            case Key.Left or Key.A or Key.Right or Key.D:
-            {
-                _horizontalInput = NoInput;
-                break;
-            }
-
-            case Key.Up or Key.Down:
-            {
-                _verticalInput = NoInput;
-                break;
-            }
-
-            default:
-            {
-                break;
-            }
+            _horizontalInput = NoInput;
+        }
+        else if (e.Key is Key.Up or Key.Down)
+        {
+            _verticalInput = NoInput;
         }
     }
 

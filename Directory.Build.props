@@ -16,6 +16,7 @@
     <PackageTags>Animation;Rx;ReactiveUI;net;netstandard</PackageTags>
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <PackageProjectUrl>https://github.com/ChrisPulman/AnimationRx</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ChrisPulman/AnimationRx</RepositoryUrl>

@@ -22,12 +22,14 @@ using Observable = ReactiveUI.Primitives.Reactive.Signals.Signal;
 using RxAnimations = AvaloniaReactiveRx::CP.AnimationRx.Reactive.Animations;
 using RxAnimationsExtensions = AvaloniaReactiveRx::CP.AnimationRx.Reactive.AnimationsExtensions;
 using RxEase = AvaloniaReactiveRx::CP.AnimationRx.Reactive.Ease;
+using TestScheduler = System.Reactive.Concurrency.HistoricalScheduler;
 using Unit = System.Reactive.Unit;
 #else
 using Observable = ReactiveUI.Primitives.Signals.Signal;
 using RxAnimations = AvaloniaRx::CP.AnimationRx.Animations;
 using RxAnimationsExtensions = AvaloniaRx::CP.AnimationRx.AnimationsExtensions;
 using RxEase = AvaloniaRx::CP.AnimationRx.Ease;
+using TestScheduler = ReactiveUI.Primitives.Concurrency.VirtualClock;
 using Unit = ReactiveUI.Primitives.RxVoid;
 #endif
 
@@ -221,5 +223,41 @@ public sealed partial class AvaloniaUiAnimationTests
                 Observable.Return(Unit.Default),
                 NegativeRepeatCount))
             .Throws<ArgumentOutOfRangeException>();
+    }
+
+    /// <summary>Verifies width captures its start on subscription, applies easing, and stops on disposal.</summary>
+    /// <returns>A task that completes when the test finishes.</returns>
+    [Test]
+    public async Task WidthToCapturesCurrentWidthAndStopsWhenDisposed()
+    {
+        const double durationMilliseconds = 32.0;
+        const double frameMilliseconds = 16.0;
+        const double subscriptionWidth = 24.0;
+        const double midpointWidth = 30.0;
+        const double advanceBeyondCompletionMilliseconds = 100.0;
+        using var schedulerOverride = OverrideUiScheduler();
+        var scheduler = new TestScheduler();
+        var button = CreateButton();
+        var completed = false;
+        var animation = RxAnimationsExtensions.WidthTo(
+            button,
+            durationMilliseconds,
+            TargetWidth,
+            RxEase.QuadIn,
+            scheduler);
+        button.Width = subscriptionWidth;
+
+        using var subscription = animation.Subscribe(_ => { }, () => completed = true);
+        await Assert.That(button.Width).IsEqualTo(subscriptionWidth);
+
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(frameMilliseconds));
+        await Assert.That(button.Width).IsEqualTo(midpointWidth).Within(AssertionTolerance);
+        await Assert.That(completed).IsFalse();
+
+        subscription.Dispose();
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(advanceBeyondCompletionMilliseconds));
+
+        await Assert.That(button.Width).IsEqualTo(midpointWidth).Within(AssertionTolerance);
+        await Assert.That(completed).IsFalse();
     }
 }

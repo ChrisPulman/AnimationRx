@@ -70,15 +70,12 @@ sealed partial class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
-            foreach (var project in TestProjects)
-            {
-                DotNetTest(s => s
-                    .SetProjectFile(project)
-                    .SetConfiguration(Configuration)
-                    .SetNoBuild(true)
-                    .SetNoRestore(true)
-                    .SetResultsDirectory(TestResultsDirectory / "tests"));
-            }
+            DotNetTest(s => s
+                .SetProjectFile(Solution)
+                .SetConfiguration(Configuration)
+                .SetNoRestore(true)
+                .SetResultsDirectory(TestResultsDirectory / "tests")
+                .AddProcessAdditionalArguments("--results-directory-layout", "per-module"));
         });
 
     Target Coverage => _ => _
@@ -87,43 +84,25 @@ sealed partial class Build : NukeBuild
         {
             TestResultsDirectory.CreateOrCleanDirectory();
 
-            foreach (var project in TestProjects)
-            {
-                DotNetTest(s => s
-                    .SetProjectFile(project)
-                    .SetConfiguration(Configuration)
-                    .SetNoBuild(true)
-                    .SetNoRestore(true)
-                    .SetResultsDirectory(TestResultsDirectory)
-                    .AddProcessAdditionalArguments(
-                        "--coverlet",
-                        "--coverlet-output-format",
-                        "cobertura",
-                        "--coverlet-include",
-                        "[AnimationRx.Wpf]*",
-                        "--coverlet-include",
-                        "[AnimationRx.Wpf.Reactive]*",
-                        "--coverlet-include",
-                        "[AnimationRx.Avalonia]*",
-                        "--coverlet-include",
-                        "[AnimationRx.Avalonia.Reactive]*",
-                        "--coverlet-exclude",
-                        "[*.Tests]*",
-                        "--coverlet-exclude-by-file",
-                        "**/obj/**/*.cs",
-                        "--coverlet-exclude-by-file",
-                        "**/*.g.cs",
-                        "--coverlet-exclude-by-file",
-                        "**/*.g.i.cs",
-                        "--coverlet-exclude-by-file",
-                        "**/*AssemblyInfo.cs",
-                        "--coverlet-exclude-by-attribute",
-                        "GeneratedCodeAttribute",
-                        "--coverlet-exclude-by-attribute",
-                        "CompilerGeneratedAttribute",
-                        "--coverlet-exclude-by-attribute",
-                        "ExcludeFromCodeCoverageAttribute"));
-            }
+            DotNetTest(s => s
+                .SetProjectFile(Solution)
+                .SetConfiguration(Configuration)
+                .SetNoRestore(true)
+                .SetResultsDirectory(TestResultsDirectory)
+                .AddProcessAdditionalArguments(
+                    "--results-directory-layout",
+                    "per-module",
+                    "--coverlet",
+                    "--coverlet-output-format",
+                    "cobertura",
+                    "--coverlet-include",
+                    "[AnimationRx.*]*",
+                    "--coverlet-threshold",
+                    "100",
+                    "--coverlet-threshold-type",
+                    "line,branch,method",
+                    "--coverlet-threshold-stat",
+                    "minimum"));
 
             VerifyCoverage();
         });

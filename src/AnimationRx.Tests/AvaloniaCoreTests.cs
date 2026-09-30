@@ -40,7 +40,7 @@ using Unit = ReactiveUI.Primitives.RxVoid;
 namespace AnimationRx.Tests;
 
 /// <summary>Contains Avalonia core animation tests.</summary>
-public sealed class AvaloniaCoreTests
+public sealed partial class AvaloniaCoreTests
 {
     /// <summary>Defines the round-trip percentage.</summary>
     private const double RoundTripPercent = 0.42;
@@ -132,14 +132,6 @@ public sealed class AvaloniaCoreTests
 
     /// <summary>Provides integer sequence input.</summary>
     private static readonly int[] IntegerSequenceInput =
-    [
-        FirstSequenceValue,
-        SecondSequenceValue,
-        ThirdSequenceValue
-    ];
-
-    /// <summary>Provides integer sequence expected.</summary>
-    private static readonly int[] IntegerSequenceExpected =
     [
         FirstSequenceValue,
         SecondSequenceValue,
@@ -375,9 +367,20 @@ public sealed class AvaloniaCoreTests
                 scheduler)
             .Subscribe(values.Add);
 
-        scheduler.Start();
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(StepDelayMilliseconds - 1));
+        await Assert.That(values).IsEmpty();
 
-        await Assert.That(values).IsEquivalentTo(IntegerSequenceExpected);
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(1));
+        await Assert.That(values).Count().IsEqualTo(1);
+        await Assert.That(values[0]).IsEqualTo(FirstSequenceValue);
+
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(StepDelayMilliseconds));
+        await Assert.That(values).Count().IsEqualTo(SecondSequenceValue);
+        await Assert.That(values[1]).IsEqualTo(SecondSequenceValue);
+
+        scheduler.Start();
+        await Assert.That(values).Count().IsEqualTo(ThirdSequenceValue);
+        await Assert.That(values[SecondSequenceValue]).IsEqualTo(ThirdSequenceValue);
     }
 
     /// <summary>Verifies sequence runs animations in order.</summary>
@@ -439,9 +442,19 @@ public sealed class AvaloniaCoreTests
             animations,
             TimeSpan.FromMilliseconds(StepDelayMilliseconds),
             scheduler).Subscribe();
-        scheduler.Start();
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(StepDelayMilliseconds - 1));
+        await Assert.That(values).IsEmpty();
 
-        await Assert.That(values).IsEquivalentTo(OrderedPairExpected);
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(1));
+        await Assert.That(values).Count().IsEqualTo(1);
+        await Assert.That(values[0]).IsEqualTo(FirstSequenceValue);
+
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(StepDelayMilliseconds - 1));
+        await Assert.That(values).Count().IsEqualTo(1);
+
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(1));
+        await Assert.That(values).Count().IsEqualTo(SecondSequenceValue);
+        await Assert.That(values[1]).IsEqualTo(SecondSequenceValue);
     }
 
     /// <summary>Verifies stagger adds incremental delays.</summary>
@@ -461,9 +474,13 @@ public sealed class AvaloniaCoreTests
             scheduler).ToArray();
 
         using var subscription = staggered.Merge().Subscribe();
-        scheduler.Start();
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(StepDelayMilliseconds - 1));
+        await Assert.That(values).Count().IsEqualTo(1);
+        await Assert.That(values[0]).IsEqualTo(FirstSequenceValue);
 
-        await Assert.That(values).IsEquivalentTo(OrderedPairExpected);
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(1));
+        await Assert.That(values).Count().IsEqualTo(SecondSequenceValue);
+        await Assert.That(values[1]).IsEqualTo(SecondSequenceValue);
     }
 
     /// <summary>Verifies sequence rejects null animations.</summary>
@@ -506,6 +523,116 @@ public sealed class AvaloniaCoreTests
         await Assert.That(() => RxAnimationsExtensions.DelayBetween(
             null!,
             TimeSpan.Zero)).Throws<ArgumentNullException>();
+    }
+
+    /// <summary>Verifies changing duration cancels the previous timeline and starts a fresh one.</summary>
+    /// <returns>A task that completes when the test finishes.</returns>
+    [Test]
+    public async Task ObservableDurationPercentageRestartsWhenDurationChanges()
+    {
+        var scheduler = new TestScheduler();
+        var values = new List<double>();
+        var completed = false;
+        var durations = Observable.Return(DurationMilliseconds).Concat(
+            Observable.Timer(TimeSpan.FromMilliseconds(DurationChangeMilliseconds), scheduler)
+                .Select(_ => FrameIntervalMilliseconds));
+        using var subscription = RxAnimations.DurationPercentage(durations, scheduler)
+            .Select(duration => duration.Percent)
+            .Subscribe(values.Add, () => completed = true);
+
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(DurationMilliseconds));
+        await AssertSequencesAreEqualAsync(values, [0.0, HalfPercentage, 0.0]);
+        await Assert.That(completed).IsFalse();
+
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(FinalFrameAdvanceMilliseconds));
+        await AssertSequencesAreEqualAsync(values, [0.0, HalfPercentage, 0.0, 1.0]);
+        await Assert.That(completed).IsTrue();
+    }
+
+    /// <summary>Verifies the next animation is subscribed only after its predecessor completes.</summary>
+    /// <returns>A task that completes when the test finishes.</returns>
+    [Test]
+    public async Task SequenceWaitsForCompletionBeforeSubscribingToNextAnimation()
+    {
+        var scheduler = new TestScheduler();
+        var subscriptions = new List<int>();
+        var completed = false;
+        var first = Observable.Defer(() =>
+        {
+            subscriptions.Add(FirstSequenceValue);
+            return Observable.Timer(TimeSpan.FromMilliseconds(StepDelayMilliseconds), scheduler)
+                .Select(_ => Unit.Default);
+        });
+        var second = Observable.Defer(() =>
+        {
+            subscriptions.Add(SecondSequenceValue);
+            return Observable.Timer(TimeSpan.FromMilliseconds(StepDelayMilliseconds), scheduler)
+                .Select(_ => Unit.Default);
+        });
+        using var subscription = RxAnimationsExtensions.Sequence([first, second])
+            .Subscribe(_ => { }, () => completed = true);
+
+        await Assert.That(subscriptions).Count().IsEqualTo(1);
+        await Assert.That(subscriptions[0]).IsEqualTo(FirstSequenceValue);
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(StepDelayMilliseconds));
+        await Assert.That(subscriptions).Count().IsEqualTo(SecondSequenceValue);
+        await Assert.That(subscriptions[1]).IsEqualTo(SecondSequenceValue);
+        await Assert.That(completed).IsFalse();
+
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(StepDelayMilliseconds));
+        await Assert.That(completed).IsTrue();
+    }
+
+    /// <summary>Verifies sequencing forwards the original error without subscribing to later animations.</summary>
+    /// <returns>A task that completes when the test finishes.</returns>
+    [Test]
+    public async Task SequenceForwardsErrorsAndSkipsLaterAnimations()
+    {
+        var error = new InvalidOperationException("Animation failed.");
+        Exception? observedError = null;
+        var subscribed = false;
+        var completed = false;
+        var later = Observable.Defer(() =>
+        {
+            subscribed = true;
+            return Observable.Return(Unit.Default);
+        });
+        using var subscription = RxAnimationsExtensions.Sequence([Observable.Throw<Unit>(error), later])
+            .Subscribe(_ => { }, exception => observedError = exception, () => completed = true);
+
+        await Assert.That(observedError).IsSameReferenceAs(error);
+        await Assert.That(subscribed).IsFalse();
+        await Assert.That(completed).IsFalse();
+    }
+
+    /// <summary>Verifies infinite repetition resubscribes after completion until disposed.</summary>
+    /// <returns>A task that completes when the test finishes.</returns>
+    [Test]
+    public async Task RepeatAnimationDisposalStopsInfiniteResubscription()
+    {
+        var scheduler = new TestScheduler();
+        var subscriptions = 0;
+        var emissions = 0;
+        var completed = false;
+        var animation = Observable.Defer(() =>
+        {
+            subscriptions++;
+            return Observable.Timer(TimeSpan.FromMilliseconds(StepDelayMilliseconds), scheduler)
+                .Select(_ => Unit.Default);
+        });
+        using var subscription = RxAnimationsExtensions.RepeatAnimation(animation)
+            .Subscribe(_ => emissions++, () => completed = true);
+
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(RepeatCancellationMilliseconds));
+        await Assert.That(subscriptions).IsEqualTo(RepeatCount);
+        await Assert.That(emissions).IsEqualTo(SecondSequenceValue);
+
+        subscription.Dispose();
+        scheduler.AdvanceBy(TimeSpan.FromMilliseconds(PostDisposalAdvanceMilliseconds));
+
+        await Assert.That(subscriptions).IsEqualTo(RepeatCount);
+        await Assert.That(emissions).IsEqualTo(SecondSequenceValue);
+        await Assert.That(completed).IsFalse();
     }
 
     /// <summary>Runs apply.</summary>
