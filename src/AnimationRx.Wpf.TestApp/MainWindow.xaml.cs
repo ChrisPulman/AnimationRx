@@ -302,26 +302,15 @@ public partial class MainWindow : IDisposable
     /// <param name="e">The key event data.</param>
     private void HandleOnPreviewKeyDown(KeyEventArgs e)
     {
-        switch (e.Key)
+        if (e.Key is Key.Enter or Key.R && !_isRunning)
         {
-            case Key.Enter or Key.R when !_isRunning:
-            {
-                StartGame();
-                e.Handled = true;
-                break;
-            }
-
-            case Key.Space when _isRunning:
-            {
-                FireBullet();
-                e.Handled = true;
-                break;
-            }
-
-            default:
-            {
-                break;
-            }
+            StartGame();
+            e.Handled = true;
+        }
+        else if (e.Key is Key.Space && _isRunning)
+        {
+            FireBullet();
+            e.Handled = true;
         }
     }
 
