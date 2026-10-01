@@ -260,6 +260,12 @@ jobs:
             echo "SS_PKCS11=$(find "$SS_DIST/" -name 'SimplySignPKCS*.so' | head -1)"
           } >> "$GITHUB_ENV"
 
+      - name: Install Python for SimplySign OTP
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3
+
       - name: Start headless display
         shell: bash
         run: |
