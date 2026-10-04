@@ -1,7 +1,6 @@
-// Copyright (c) 2022-2026 Chris Pulman. All rights reserved.
-// Chris Pulman licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 Chris Pulman and contributors. All rights reserved.
+// Chris Pulman and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
-
 #if REACTIVE_SHIM
 namespace CP.AnimationRx.Reactive;
 #else
@@ -94,6 +93,11 @@ public static class EasesExtensions
 
     /// <summary>Gets the half-pi value.</summary>
     private static double HalfPi => Math.PI / Two;
+
+    /// <summary>Converts raw percentages into animation durations.</summary>
+    /// <param name="source">The percentage stream.</param>
+    /// <returns>The corresponding durations.</returns>
+    public static IObservable<Duration> ToDuration(IObservable<double> source) => Animations.ToDuration(source);
 
     /// <summary>Calculates the EaseWith value.</summary>
     /// <param name="source">The source value.</param>

@@ -1,5 +1,5 @@
-// Copyright (c) 2022-2026 Chris Pulman. All rights reserved.
-// Chris Pulman licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 Chris Pulman and contributors. All rights reserved.
+// Chris Pulman and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 #if REACTIVE_TESTS
@@ -381,6 +381,7 @@ public sealed partial class WpfUiAnimationTests
                 [typeof(int)] = EnabledPulseCount,
                 [typeof(int?)] = EnabledPulseCount,
                 [typeof(TimeSpan)] = TimeSpan.Zero,
+                [typeof(Action<Action<TimeSpan>>)] = (Action<Action<TimeSpan>>)(_ => { }),
                 [typeof(RxEase)] = RxEase.None,
                 [typeof(ISequencer)] = Sequencer.Immediate,
                 [typeof(Thickness)] = TargetMargin,
@@ -416,6 +417,11 @@ public sealed partial class WpfUiAnimationTests
         /// <returns>The observable argument.</returns>
         private static object GetObservableArgument(Type type)
         {
+            if (type == typeof((double X, double Y)))
+            {
+                return Observable.Return((TargetTranslateX, TargetTranslateY));
+            }
+
             if (type == typeof(double))
             {
                 return Observable.Return(InstantDuration);

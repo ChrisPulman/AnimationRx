@@ -33,6 +33,8 @@ Choose one reactive model per pipeline:
 
 Each package references the matching ReactiveUI.Primitives platform package. NuGet selects the framework-specific assets for the consuming TFM; do not add System.Reactive to a lean project solely for scheduling or disposables. Dependency versions are maintained in `Directory.Packages.props`.
 
+WPF and Avalonia expose matching static and fluent animation contracts with their native element, point, color, and thickness types. Both support all four margin-side moves, including observable duration, target, and easing inputs; observable translation and rotation targets; property and transform effects; easing; and sequence, parallel, stagger, delay, and repeat composition. Changing observable targets replaces the previous animation through `Switch`. Existing APIs remain available. The parity tests compare public method signatures and easing values for both reactive models, accounting for the corresponding native types.
+
 ### AnimationRx.Wpf
 
 NuGet:
@@ -80,6 +82,56 @@ someVisual
 
 ---
 
+## Game animation pipelines
+
+The WPF and Avalonia packages provide the same game trajectory operators through `GameAnimationsExtensions`. The lean and `.Reactive` variants share their implementation. Positions are `(double X, double Y)` tuples, so the same trajectory can drive a sprite, camera, particle, or a view-model without depending on a UI framework.
+
+| Operator | Input | Output / use |
+| --- | --- | --- |
+| `QuadraticBezier(start, control, end)` | Normalized progress | Curved jumps and projectile paths |
+| `CubicBezier(start, control1, control2, end)` | Normalized progress | Curved camera and enemy movement |
+| `Orbit(center, radii, startAngle, sweepAngle)` | Normalized progress | Elliptical movement; angles are radians |
+| `Ballistic(origin, velocity, acceleration)` | Elapsed seconds | Motion with constant acceleration, including gravity |
+| `SpriteFrames(frameCount)` | Normalized progress | Zero-based frame indices; repeated indices are omitted |
+| `ApplyTranslation(element)` | Position tuples | UI-scheduled translation, preserving other transforms |
+| `Animations.RenderFrames(requestFrame)` | A one-shot rendering callback registrar | Increasing frame indices synchronized to a native render loop |
+
+For lean packages, import `CP.AnimationRx` and `ReactiveUI.Primitives`. For `.Reactive` packages, import `CP.AnimationRx.Reactive` and `ReactiveUI.Primitives.Reactive` instead.
+
+```csharp
+// The same pipeline works in WPF and Avalonia.
+var jump = Animations.DurationPercentage(600)
+    .EaseAnimation(Ease.SineInOut)
+    .Select(duration => duration.Percent)
+    .QuadraticBezier((0, 0), (100, -160), (200, 0));
+
+var subscription = jump.ApplyTranslation(playerVisual).Subscribe();
+
+// Dispose subscription to stop receiving positions.
+```
+
+```csharp
+var projectile = Animations.MilliSecondsElapsed(scheduler)
+    .Select(milliseconds => milliseconds / 1000.0)
+    .Ballistic((0, 0), (150, -240), (0, 480));
+
+var spriteFrames = Animations.DurationPercentage(800)
+    .Select(duration => duration.Percent)
+    .SpriteFrames(8);
+```
+
+Avalonia can drive game updates from its native rendering ticks:
+
+```csharp
+// topLevel is an Avalonia TopLevel; registration is marshalled to the UI scheduler.
+var renderSubscription = Animations.RenderFrames(topLevel.RequestAnimationFrame)
+    .Subscribe(frameIndex => UpdateGame(frameIndex));
+```
+
+The callback overload exists in both platforms, including the fluent `requestFrame.RenderFrames()` form for an `Action<Action<TimeSpan>>` registrar. Each subscription starts its own frame count at zero. Dispose to stop emissions and callback renewal; a callback already queued by the renderer is ignored. Registration failures are propagated through `OnError`. Existing parameterless methods retain their behavior: WPF uses `CompositionTarget.Rendering`, and Avalonia uses its UI-scheduled default cadence.
+
+Trajectory operators preserve progress outside `[0, 1]`, so easing overshoot and multi-turn orbits remain possible. Sprite indices clamp to the valid range, with NaN progress selecting frame zero. Time, completion, errors, and disposal come from the source observable; the operators create no independent timers or subscriptions. `ApplyTranslation` marshals updates to the UI scheduler and changes translation without replacing scale, rotation, or skew transforms. Dispose its subscription to stop updates. Use existing `Concat`, `Sequence`, `Parallel`, and `RepeatAnimation` composition for complete game actions.
+
 ## Building and testing
 
 On Windows, with the .NET 11 SDK installed, run from the repository root:
@@ -101,7 +153,7 @@ Compiler and analyzer warnings fail the build. The solution builds every library
 ### `Duration`
 Animations are driven by a `Duration` value stream, where:
 
-- `Duration.Percent` is always in `[0..1]`
+- `Duration.Percent` holds progress; the timer produces `[0..1]`, while easing and custom sources can overshoot
 - `DurationPercentage(...)` produces the progress stream
 - `EaseAnimation(...)` reshapes the progress curve
 - `Distance(...)` maps progress into a delta (e.g., pixels, degrees)

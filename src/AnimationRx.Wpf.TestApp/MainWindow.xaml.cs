@@ -1,5 +1,5 @@
-// Copyright (c) 2022-2026 Chris Pulman. All rights reserved.
-// Chris Pulman licenses this file to you under the MIT license.
+// Copyright (c) 2019-2026 Chris Pulman and contributors. All rights reserved.
+// Chris Pulman and contributors licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for full license information.
 
 using System;
@@ -259,7 +259,7 @@ public partial class MainWindow : IDisposable
     /// <returns>The frame delta stream.</returns>
     private static IObservable<double> CreateFrameDeltas(IObservable<long> frame) =>
         frame.Timestamp(UiScheduler)
-            .Scan((last: DateTimeOffset.Now, delta: InitialFrameDeltaSeconds), (state, value) =>
+            .Scan((last: UiScheduler.Now, delta: InitialFrameDeltaSeconds), (state, value) =>
             {
                 var delta = ClampFrameDelta(value.Timestamp, state.last);
                 return (last: value.Timestamp, delta);
@@ -464,7 +464,7 @@ public partial class MainWindow : IDisposable
     {
         _ = frame.WithLatestFrom(horizontalInput, (_, input) => input)
             .Timestamp(UiScheduler)
-            .Scan((last: DateTimeOffset.Now, x: PlayerInitialLeft), (state, sample) =>
+            .Scan((last: UiScheduler.Now, x: PlayerInitialLeft), (state, sample) =>
             {
                 var delta = ClampFrameDelta(sample.Timestamp, state.last);
                 var next = state.x + (sample.Value * PlayerSpeed * delta);
@@ -490,7 +490,7 @@ public partial class MainWindow : IDisposable
 
         _ = frame.WithLatestFrom(verticalInput, (_, input) => input)
             .Timestamp(UiScheduler)
-            .Scan((last: DateTimeOffset.Now, y: initialTop), (state, sample) =>
+            .Scan((last: UiScheduler.Now, y: initialTop), (state, sample) =>
             {
                 var delta = ClampFrameDelta(sample.Timestamp, state.last);
                 var next = state.y + (sample.Value * PlayerSpeed * delta);
