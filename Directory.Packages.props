@@ -25,6 +25,6 @@
     <PackageVersion Include="PerformanceSharp.Analyzers" Version="$(RoslynAnalysersVersion)" />
     <PackageVersion Include="SecuritySharp.Analyzers" Version="$(RoslynAnalysersVersion)" />
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.12" />
-    <PackageVersion Include="TUnit" Version="1.72.16" />
+    <PackageVersion Include="TUnit" Version="1.73.19" />
   </ItemGroup>
 </Project>
